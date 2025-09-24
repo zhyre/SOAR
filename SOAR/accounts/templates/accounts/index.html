@@ -3,12 +3,16 @@
 <html>
 
 <head>
-    <title>Gworking</title>
+    <title>SOAR</title>
     <link rel="stylesheet" href="{% static 'accounts/indexStyles.css' %}">
 </head>
 
 <body>
-    <h1>Good luck, etsss!</h1>
-</body>
+    <h1>Welcome, {{ user.username }}!</h1>
+    <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
 
+</body>
 </html>
