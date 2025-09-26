@@ -1,0 +1,447 @@
+:root {
+  --auth-bg-start: #3a57ad;
+  --auth-bg-mid: #0B2F6B;
+  --auth-bg-end: #6b84a9;
+  --panel-gradient-start: #0F172A;
+  --panel-gradient-end: #1E3A8A;
+  --panel-text: #F8FAFC;
+  --form-bg: #ffffff;
+  --form-shadow: 0 20px 60px rgba(2,6,23,.12);
+  --primary: #0B5DD8;
+  --primary-2: #1570EF;
+  --input-border: #e5e7eb;
+  --input-focus: #1D4ED8;
+  --success: #1a9953;
+  --success-bg: #d4f7e1;
+  --error: #c53030;
+  --error-bg: #fde8e8;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  height:100%;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background-color: #0f1c3a;
+  background-image:
+    linear-gradient(145deg, rgba(15,28,58,.78), rgba(29,53,87,.72), rgba(13,71,161,.72)),
+    url('/static/accounts/bg-campus.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px 540px at 18% 20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
+    radial-gradient(1200px 700px at 80% 85%, rgba(0,0,0,.20), rgba(0,0,0,0) 60%);
+  animation: bg-pulse 20s infinite alternate ease-in-out;
+  pointer-events: none;
+}
+
+.auth-card {
+  width: min(95%, 1200px);
+  min-height: 560px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--form-shadow);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  backdrop-filter: saturate(180%) blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: floatIn 0.6s ease-out both;
+  margin: 40px auto;
+}
+
+.auth-card.auth-single {
+  grid-template-columns: 1fr;
+  width: min(95%, 520px);
+  min-height: auto;
+  background: var(--form-bg);
+  backdrop-filter: none;
+  border: none;
+}
+
+.auth-card.auth-single .auth-form form > button {
+  justify-self: center;
+}
+
+.auth-card.register-wide {
+  grid-template-columns: 1fr 1.5fr;
+  width: min(95%, 1400px);
+  max-width: 1600px;
+}
+
+.auth-card.register-wide .auth-form form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 24px;
+  row-gap: 18px;
+}
+.auth-card.register-wide .auth-form form > button {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+/* Left welcome panel */
+.auth-hero {
+  position: relative;
+  padding: 40px 36px;
+  color: var(--panel-text);
+  background: linear-gradient(160deg, rgba(28,42,77,.92) 0%, rgba(45,69,114,.92) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.auth-hero:hover {
+  transform: scale(1.02);
+}
+
+.auth-hero h1 {
+  margin: 0 0 10px;
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.auth-hero p {
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.5;
+  font-size: 1.1em;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 28px;
+}
+
+.brand img {
+  height: 80px;
+  width: auto;
+  max-width: 100%;
+  display: block;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.25));
+  transition: transform 0.3s ease;
+}
+
+.brand img:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.brand .brand-name {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form .brand .brand-name {
+  color: #1a202c;
+}
+
+.brand.mobile {
+  display: none;
+}
+
+/* Right form panel */
+.auth-form {
+  background: var(--form-bg);
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+  position: relative;
+}
+
+.auth-form::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: radial-gradient(circle at top right, rgba(29, 78, 216, 0.05), transparent 70%);
+  z-index: 0;
+}
+
+.auth-form h2 {
+  margin: 0 0 24px;
+  color: #1a202c;
+  font-size: 32px;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-form form {
+  display: grid;
+  gap: 18px;
+  max-width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Floating Label Styles */
+.auth-form p {
+  position: relative;
+  margin: 0;
+}
+
+.auth-form label {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  font-weight: 600;
+  color: #1a202c;
+  opacity: 0.7;
+  font-size: 0.95rem;
+  pointer-events: none;
+  transition: all 0.2s ease-out;
+  z-index: 1;
+}
+
+.auth-form input,
+.auth-form select,
+.auth-form textarea {
+  width: 100%;
+  padding: 22px 16px 6px;
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  background: #f8fafc;
+  outline: none;
+  transition: all 0.2s ease-out;
+}
+
+/* Floating effect for label when input is focused or has content */
+.auth-form input:focus ~ label,
+.auth-form input:not(:placeholder-shown) ~ label {
+  top: 6px;
+  font-size: 0.75rem;
+  opacity: 1;
+  color: var(--input-focus);
+}
+
+.auth-form input:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.15);
+  background-color: #fff;
+}
+
+.auth-form input::placeholder {
+  color: transparent;
+}
+
+.auth-form input:hover {
+  border-color: #cbd5e1;
+}
+
+/* Floating help and error messages on hover */
+.auth-form p .helptext,
+.auth-form p .errorlist {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.8em;
+  font-weight: 400;
+  color: #4b5563;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(-10px);
+  z-index: 10;
+  width: max-content;
+  box-shadow: 0 4px 10px rgba(0,0,0,.1);
+}
+
+/* New CSS for floating password help */
+.password-helptext {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.8em;
+    font-weight: 400;
+    color: #4b5563;
+    opacity: 0; /* This makes the element invisible by default */
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(-10px);
+    z-index: 10;
+    width: max-content;
+    box-shadow: 0 4px 10px rgba(0,0,0,.1);
+    list-style-type: none;
+    padding-left: 18px;
+}
+
+.password-helptext li {
+    margin-bottom: 4px;
+    position: relative;
+    padding-left: 12px;
+}
+
+.password-helptext li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    font-size: 1.2em;
+    line-height: 1;
+    color: #94a3b8;
+}
+
+/* Display floating messages on hover or focus of the parent container */
+.auth-form p:hover .helptext,
+.auth-form p:focus-within .helptext,
+.auth-form p:hover .errorlist,
+.auth-form p:focus-within .errorlist,
+.auth-form p:hover .password-helptext,
+.auth-form p:focus-within .password-helptext {
+    opacity: 1; /* This makes the element visible on hover/focus */
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.errorlist {
+  color: var(--error);
+}
+
+.helptext {
+  color: #64748b;
+}
+
+.btn-primary {
+  appearance: none;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  font-weight: 600;
+  height: auto;
+  padding: 14px 24px;
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 20px auto 0;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.3px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #1d4ed8, #2563eb);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transform: scale(1.05);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-primary:focus-visible {
+  outline: 3px solid rgba(21, 112, 239, 0.4);
+  outline-offset: 4px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.message {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 500;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.message.error {
+  background: var(--error-bg);
+  color: var(--error);
+  border: 1px solid #f9a0a0;
+}
+
+.message.success {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid #86efac;
+}
+
+@media (max-width: 860px) {
+  .auth-card, .auth-card.register-wide {
+    grid-template-columns: 1fr;
+    width: min(95%, 520px);
+  }
+  .auth-hero {
+    display: none;
+  }
+  .auth-form {
+    padding: 32px;
+  }
+  .auth-card.register-wide .auth-form form {
+    grid-template-columns: 1fr;
+  }
+  .brand.mobile {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .brand.mobile img {
+    height: 64px;
+  }
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bg-pulse {
+  from { transform: scale(1); opacity: 0.9; }
+  to { transform: scale(1.1); opacity: 1; }
+}
