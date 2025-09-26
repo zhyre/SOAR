@@ -1,20 +1,44 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Student Login</title>
+    <link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
-    <h2>Login</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-    </form>
-
-    {% if messages %}
-        {% for message in messages %}
-            <p style="color: red;">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
+    <div class="auth-card">
+        <section class="auth-hero">
+            <div class="brand">
+                <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR logo" />
+            </div>
+            <h1>Welcome</h1>
+            <p>Log in to continue access</p>
+        </section>
+        <section class="auth-form">
+            <div class="brand mobile">
+                <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR logo" />
+            </div>
+            <h2>Login</h2>
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <p>
+                        {{ field }}
+                        {{ field.label_tag }}
+                        {% for error in field.errors %}
+                            <div class="errorlist">{{ error }}</div>
+                        {% endfor %}
+                    </p>
+                {% endfor %}
+                <button class="btn-primary" type="submit">Continue</button>
+            </form>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message error">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </section>
+    </div>
 </body>
 </html>

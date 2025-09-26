@@ -1,18 +1,338 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>SOAR</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOAR - Dashboard</title>
     <link rel="stylesheet" href="{% static 'accounts/indexStyles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                    document.body.classList.toggle('sidebar-active');
+                });
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.classList.remove('sidebar-active');
+                });
+            }
+            
+            const observerOptions = {
+                threshold: 0.1
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.stat-card').forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
 </head>
+<body class="dashboard">
+    <!-- Overlay for mobile sidebar -->
+    <div class="overlay"></div>
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR Logo" class="logo">
+                <h2>SOAR</h2>
+                <span class="sidebar-close"><i class="fas fa-times"></i></span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>My Organizations</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>My Events</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Announcements</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
 
-<body>
-    <h1>Welcome, {{ user.username }}!</h1>
-    <form method="POST" action="{% url 'logout' %}">
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="menu-toggle" aria-label="Toggle menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <div class="notifications">
+                        <i class="far fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" alt="{{ user.username }}">
+                        <span>{{ user.username }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <!-- Header Section -->
+                <div class="dashboard-header">
+                    <div class="header-content">
+                        <h1>Welcome, {{ user.username }}! <span class="wave">👋</span></h1>
+                        <p class="subtitle">Track your school organizations and upcoming events in one place.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            <span>Create Event</span>
+                        </button>
+                        <button class="btn btn-outline">
+                            <i class="fas fa-search"></i>
+                            <span>Find Organizations</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>3</h3>
+                            <p>Organizations</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>5</h3>
+                            <p>Upcoming Events</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>8</h3>
+                            <p>Announcements</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #e0f2fe;">
+                            <i class="fas fa-book-open" style="color: #0ea5e9;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>5</h3>
+                            <p>Active Courses</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #f0fdf4;">
+                            <i class="fas fa-tasks" style="color: #10b981;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>12</h3>
+                            <p>Tasks Due</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #fef3c7;">
+                            <i class="fas fa-calendar-check" style="color: #f59e0b;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>3</h3>
+                            <p>Upcoming Events</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #f3e8ff;">
+                            <i class="fas fa-chart-line" style="color: #8b5cf6;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>92%</h3>
+                            <p>Overall Progress</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Events -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2>Upcoming Events</h2>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="events-grid">
+                        <div class="event-card">
+                            <div class="event-date">
+                                <span class="day">28</span>
+                                <span class="month">SEP</span>
+                            </div>
+                            <div class="event-details">
+                                <h3>Tech Club Meeting</h3>
+                                <p class="event-org">Computer Science Society</p>
+                                <p class="event-time"><i class="far fa-clock"></i> 3:00 PM - 5:00 PM</p>
+                                <p class="event-location"><i class="fas fa-map-marker-alt"></i> Engineering Building, Room 203</p>
+                            </div>
+                            <div class="event-actions">
+                                <button class="btn btn-sm">Details</button>
+                                <button class="btn btn-sm btn-outline">RSVP</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Organizations -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2>My Organizations</h2>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="orgs-grid">
+                        <div class="org-card">
+                            <div class="org-logo">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <div class="org-details">
+                                <h3>Computer Science Society</h3>
+                                <p class="org-members"><i class="fas fa-users"></i> 128 members</p>
+                                <p class="org-description">Promoting computer science education and networking among students.</p>
+                            </div>
+                            <div class="org-actions">
+                                <button class="btn btn-sm">View</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Announcements -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2>Recent Announcements</h2>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-file-upload"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p>You submitted Assignment #3 - Web Development</p>
+                                <span class="activity-time">2 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-comment-dots"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p>New comment on your submission in Database Systems</p>
+                                <span class="activity-time">5 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p>New lecture uploaded: Advanced Algorithms</p>
+                                <span class="activity-time">1 day ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Deadlines -->
+                <div class="upcoming-deadlines">
+                    <div class="section-header">
+                        <h2>Upcoming Deadlines</h2>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="deadline-list">
+                        <div class="deadline-item">
+                            <div class="deadline-date">
+                                <span class="day">15</span>
+                                <span class="month">SEP</span>
+                            </div>
+                            <div class="deadline-details">
+                                <h4>Web Development Project</h4>
+                                <p>Due in 3 days</p>
+                            </div>
+                            <div class="deadline-actions">
+                                <button class="btn-small">View</button>
+                            </div>
+                        </div>
+                        <div class="deadline-item">
+                            <div class="deadline-date">
+                                <span class="day">18</span>
+                                <span class="month">SEP</span>
+                            </div>
+                            <div class="deadline-details">
+                                <h4>Database Systems Quiz</h4>
+                                <p>Due in 6 days</p>
+                            </div>
+                            <div class="deadline-actions">
+                                <button class="btn-small">View</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <form method="POST" action="{% url 'logout' %}" class="logout-form">
         {% csrf_token %}
-        <button type="submit">Logout</button>
+        <button type="submit" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </button>
     </form>
-
 </body>
 </html>

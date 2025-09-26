@@ -1,23 +1,93 @@
-<!-- TEST: This is the register.html currently being loaded -->
-
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Student Registration</title>
+    <link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* Hide help text by default */
+        .helptext {
+            display: none;
+            font-size: 12px;
+            color: #555;
+            margin-top: 5px;
+            position: absolute;
+            background: #f8f9fa;
+            border: 1px solid #ccc;
+            padding: 5px 8px;
+            border-radius: 5px;
+            white-space: normal;
+            z-index: 10;
+        }
+
+        /* Show help text only when hovering or focusing input */
+        p:hover .helptext,
+        p:focus-within .helptext {
+            display: block;
+        }
+
+        /* Input hover/focus styling */
+        input:hover, select:hover, textarea:hover {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        button.btn-primary:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        p {
+            position: relative;
+        }
+    </style>
 </head>
 <body>
-    <h2>Register</h2>
+    <div class="auth-card register-wide">
+        <section class="auth-hero">
+            <div class="brand">
+                <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR logo" />
+            </div>
+            <h1>Welcome</h1>
+            <p>Create your account</p>
+        </section>
+        <section class="auth-form">
+            <div class="brand mobile">
+                <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR logo" />
+            </div>
+            <h2>Register</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in form %}
+                    <p>
+                        {{ field }}
+                        {{ field.label_tag }}
+                        {% if field.help_text %}
+                            <small class="helptext">{{ field.help_text|safe }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="errorlist">{{ error }}</div>
+                        {% endfor %}
+                    </p>
+                {% endfor %}
+                <button class="btn-primary" type="submit" style="width: 100%; max-width: 320px; margin: 20px auto 0; display: block; padding: 14px 24px;">Register</button>
+            </form>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message success">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </section>
+    </div>
 
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Register</button>
-    </form>
-
-    {% if messages %}
-        {% for message in messages %}
-            <p style="color: green;">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("[name='student_id']").inputmask("99-9999-999");  
+        });
+    </script>
 </body>
 </html>
