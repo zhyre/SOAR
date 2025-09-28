@@ -239,6 +239,42 @@ body::before {
 
 /* Floating effect for label when input is focused or has content */
 .auth-form input:focus ~ label,
+/* Auth links styling */
+.auth-links {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.auth-links a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  position: relative;
+  padding: 4px 0;
+}
+
+.auth-links a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.auth-links a:hover {
+  color: var(--input-focus);
+}
+
+.auth-links a:hover::after {
+  width: 100%;
+}
+
 .auth-form input:not(:placeholder-shown) ~ label {
   top: 6px;
   font-size: 0.75rem;

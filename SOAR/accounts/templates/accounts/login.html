@@ -38,6 +38,9 @@
                     <div class="message error">{{ message }}</div>
                 {% endfor %}
             {% endif %}
+            <div style="margin-top: 20px; text-align: center;">
+                <p>Don't have an account? <a href="{% url 'register' %}" style="color: #0B5DD8; text-decoration: none; font-weight: 500;">Create Account</a></p>
+            </div>
         </section>
     </div>
 </body>
