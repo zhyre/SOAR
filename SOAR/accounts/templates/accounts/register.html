@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="{% static 'accounts/auth.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-        /* Hide help text by default */
         .helptext {
             display: none;
             font-size: 12px;
@@ -20,28 +19,20 @@
             white-space: normal;
             z-index: 10;
         }
-
-        /* Show help text only when hovering or focusing input */
         p:hover .helptext,
         p:focus-within .helptext {
             display: block;
         }
-
-        /* Input hover/focus styling */
         input:hover, select:hover, textarea:hover {
             border-color: #007bff;
             box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
             transition: all 0.3s ease;
         }
-
         button.btn-primary:hover {
             background-color: #0056b3;
             transform: scale(1.05);
         }
-
-        p {
-            position: relative;
-        }
+        p { position: relative; }
     </style>
 </head>
 <body>
@@ -79,6 +70,9 @@
                     <div class="message success">{{ message }}</div>
                 {% endfor %}
             {% endif %}
+            <div style="margin-top: 20px; text-align: center;">
+                <p>Already have an account? <a href="{% url 'login' %}" style="color: #0B5DD8; text-decoration: none; font-weight: 500;">Back to Login</a></p>
+            </div>
         </section>
     </div>
 
