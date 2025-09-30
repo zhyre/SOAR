@@ -1,7 +1,7 @@
 import re
 from django import forms
 from django.core.exceptions import ValidationError
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import User
 
 COMMON_PASSWORDS = [
@@ -93,3 +93,7 @@ class StudentRegistrationForm(UserCreationForm):
             raise ValidationError('Your password can’t be a commonly used password.')
 
         return password
+    
+class CustomLoginForm(AuthenticationForm):
+    username = forms.CharField(label="Username")
+    password = forms.CharField(label="Password", widget=forms.PasswordInput)
