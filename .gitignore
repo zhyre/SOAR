@@ -7,9 +7,11 @@ __pycache__/
 *$py.class
 
 
-# Virtual environment
 
+# Virtual environment
 venv/
+env/
+
 
 
 # Django-specific files
