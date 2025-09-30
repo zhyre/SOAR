@@ -238,7 +238,6 @@ body::before {
 }
 
 /* Floating effect for label when input is focused or has content */
-.auth-form input:focus ~ label,
 /* Auth links styling */
 .auth-links {
   margin-top: 20px;
@@ -275,6 +274,7 @@ body::before {
   width: 100%;
 }
 
+.auth-form input:focus ~ label, 
 .auth-form input:not(:placeholder-shown) ~ label {
   top: 6px;
   font-size: 0.75rem;
