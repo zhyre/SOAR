@@ -9,13 +9,29 @@ COMMON_PASSWORDS = [
 ]
 
 class StudentRegistrationForm(UserCreationForm):
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not email.endswith('@cit.edu'):
+            raise forms.ValidationError('Email must end with @cit.edu')
+        
+        # Check if email follows firstname.lastname@cit.edu format
+        username = email.split('@')[0]
+        if '.' not in username or len(username.split('.')) != 2:
+            raise forms.ValidationError('Email must be in the format: firstname.lastname@cit.edu')
+            
+        firstname, lastname = username.split('.')
+        if not firstname or not lastname:
+            raise forms.ValidationError('Email must be in the format: firstname.lastname@cit.edu')
+            
+        return email
+        
     email = forms.EmailField(
         required=True,
-        help_text='Email must end with @cit.edu',
+        help_text='Email must be in the format: firstname.lastname@cit.edu',
         widget=forms.EmailInput(attrs={
-            'placeholder': ' ',
-            'pattern': r'.+@cit\.edu',
-            'title': 'Email must end with @cit.edu'
+            'placeholder': 'firstname.lastname@cit.edu',
+            'pattern': r'^[a-zA-Z]+\.[a-zA-Z]+@cit\.edu$',
+            'title': 'Email must be in the format: firstname.lastname@cit.edu'
         })
     )
     student_id = forms.CharField(
@@ -27,9 +43,28 @@ class StudentRegistrationForm(UserCreationForm):
             'title': 'Format: 12-3456-789'
         })
     )
-    course = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'placeholder': ' '})
+    COURSE_CHOICES = [
+        ('', 'Select a course'),
+        ('BS in Computer Science', 'BS in Computer Science'),
+        ('BS in Information Technology', 'BS in Information Technology'),
+        ('BS in Computer Engineering', 'BS in Computer Engineering'),
+        ('BS in Information Systems', 'BS in Information Systems'),
+        ('BS in Electronics Engineering', 'BS in Electronics Engineering'),
+        ('BS in Civil Engineering', 'BS in Civil Engineering'),
+        ('BS in Mechanical Engineering', 'BS in Mechanical Engineering'),
+        ('BS in Electrical Engineering', 'BS in Electrical Engineering'),
+    ]
+    
+    course = forms.ChoiceField(
+        required=True,
+        choices=COURSE_CHOICES,
+        label='',
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'required': 'required',
+            'onchange': "this.setCustomValidity('')",
+            'oninvalid': "this.setCustomValidity('Please select a course')",
+        })
     )
     year_level = forms.IntegerField(
         required=False,
@@ -37,9 +72,18 @@ class StudentRegistrationForm(UserCreationForm):
         widget=forms.NumberInput(attrs={'placeholder': ' '})
     )
 
+    first_name = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': ' '})
+    )
+    last_name = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': ' '})
+    )
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'student_id', 'course', 'year_level', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'student_id', 'course', 'year_level', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

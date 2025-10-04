@@ -296,6 +296,31 @@ body::before {
   border-color: #cbd5e1;
 }
 
+/* Error messages */
+.errorlist,
+.message.error {
+    color: white;
+    background-color: var(--error);
+    font-size: 0.85rem;
+    margin: 8px 0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    list-style: none;
+    font-weight: 500;
+    display: inline-block;
+}
+
+/* Success messages */
+.message.success {
+    color: #16a34a;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 0.95rem;
+}
+
 /* Floating help and error messages on hover */
 .auth-form p .helptext,
 .auth-form p .errorlist {
