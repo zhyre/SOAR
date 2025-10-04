@@ -33,6 +33,56 @@
             transform: scale(1.05);
         }
         p { position: relative; }
+        
+        /* Style the select element */
+        select.form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.375rem;
+            background-color: #f8f9fa;
+            color: #333;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        select.form-select:hover {
+            background-color: #f1f3f5;
+            border-color: #adb5bd;
+        }
+        
+        select.form-select:focus {
+            outline: none;
+            border-color: #0B5DD8;
+            box-shadow: 0 0 0 2px rgba(11, 93, 216, 0.2);
+            background-color: #fff;
+        }
+        
+        /* Style the dropdown options */
+        select.form-select option {
+            padding: 0.5rem 1rem;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        
+        /* Style the select when focused */
+        select.form-select:focus {
+            outline: none;
+            border-color: #0B5DD8;
+            box-shadow: 0 0 0 2px rgba(11, 93, 216, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -59,7 +109,7 @@
                             <small class="helptext">{{ field.help_text|safe }}</small>
                         {% endif %}
                         {% for error in field.errors %}
-                            <div class="errorlist">{{ error }}</div>
+                            <div class="errorlist" style="color: #ff0000; font-weight: 500; margin-top: 5px;">{{ error }}</div>
                         {% endfor %}
                     </p>
                 {% endfor %}
@@ -67,7 +117,7 @@
             </form>
             {% if messages %}
                 {% for message in messages %}
-                    <div class="message success">{{ message }}</div>
+                    <div class="message error">{{ message }}</div>
                 {% endfor %}
             {% endif %}
             <div style="margin-top: 20px; text-align: center;">
