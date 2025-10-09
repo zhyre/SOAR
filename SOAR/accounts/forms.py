@@ -141,3 +141,16 @@ class StudentRegistrationForm(UserCreationForm):
 class CustomLoginForm(AuthenticationForm):
     username = forms.CharField(label="Username")
     password = forms.CharField(label="Password", widget=forms.PasswordInput)
+
+    def clean(self):
+        """
+        Override AuthenticationForm.clean to avoid performing Django authentication here.
+        We validate presence of fields and defer auth to Supabase in the view.
+        """
+        # Bypass AuthenticationForm.clean() and only run base Form.clean()
+        cleaned = forms.Form.clean(self)
+        username = cleaned.get('username')
+        password = cleaned.get('password')
+        if not username or not password:
+            raise ValidationError('Both username and password are required.')
+        return cleaned

@@ -3,45 +3,128 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import StudentRegistrationForm, CustomLoginForm
+from .models import User
+from supabase import create_client
+from decouple import config
+from django.core.exceptions import ImproperlyConfigured
 
 @login_required
 def index(request):
     return render(request, "accounts/index.html")
 
+SUPABASE_URL = config("SUPABASE_URL", default=None)
+SUPABASE_KEY = config("SUPABASE_KEY", default=None)
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ImproperlyConfigured(
+        "Supabase credentials are not configured. Set SUPABASE_URL and SUPABASE_KEY in your environment/.env."
+    )
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 def register(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Account created successfully! You can now log in.')
-            return redirect('login')
+            email = form.cleaned_data.get("email")
+            password = form.cleaned_data.get("password1")  
+            username = email.split("@")[0]
+
+            try:
+                response = supabase.auth.sign_up({
+                    "email": email,
+                    "password": password
+                })
+            except Exception as e:
+                messages.error(request, f"Supabase registration failed: {e}")
+                return render(request, "accounts/register.html", {"form": form})
+
+            if getattr(response, "user", None):
+                supa_user_id = response.user.id
+                cd = form.cleaned_data
+                try:
+                    user_obj = User.objects.get(pk=supa_user_id)
+                    user_obj.username = cd.get("username") or user_obj.username
+                    user_obj.email = email
+                    user_obj.first_name = cd.get("first_name") or user_obj.first_name
+                    user_obj.last_name = cd.get("last_name") or user_obj.last_name
+                    user_obj.student_id = cd.get("student_id") or user_obj.student_id
+                    user_obj.course = cd.get("course") or user_obj.course
+                    user_obj.year_level = cd.get("year_level") or user_obj.year_level
+                except User.DoesNotExist:
+                    user_obj = form.save(commit=False)
+                    user_obj.id = supa_user_id
+                    user_obj.email = email
+
+                user_obj.is_active = False
+                user_obj.set_unusable_password()
+                user_obj.save()
+
+                messages.success(
+                    request,
+                    "Account created. Please check your email to confirm your account before logging in."
+                )
+                return redirect("login")
+            else:
+                messages.error(request, "Supabase registration failed: No user returned.")
         else:
             messages.error(request, "Registration failed. Please check the form.")
     else:
         form = StudentRegistrationForm()
-    return render(request, 'accounts/register.html', {'form': form})
+
+    return render(request, "accounts/register.html", {"form": form})
 
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('index')
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CustomLoginForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                messages.success(request, f"Welcome back, {user.username}!")
-                return redirect('index')
-            else:
-                messages.error(request, "Invalid credentials. Please try again.")
-        else:
-            messages.error(request, "Invalid credentials. Please try again.")
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+
+            email = username if username and '@' in username else f"{username}@cit.edu"
+
+            try:
+                response = supabase.auth.sign_in_with_password({
+                    "email": email,
+                    "password": password
+                })
+
+                if getattr(response, "user", None):
+                    if not response.user.email_confirmed_at:
+                        messages.warning(request, "Please verify your email before logging in.")
+                    else:
+                        try:
+                            user_obj = User.objects.get(pk=response.user.id)
+                        except User.DoesNotExist:
+                            user_obj = User(
+                                id=response.user.id,
+                                username=email.split("@")[0],
+                                email=email,
+                                is_active=True,
+                            )
+                            user_obj.set_unusable_password()
+                            user_obj.save()
+                        else:
+                            if not user_obj.is_active:
+                                user_obj.is_active = True
+                                user_obj.save()
+
+                        login(request, user_obj, backend='django.contrib.auth.backends.ModelBackend')
+                        messages.success(request, f"Welcome back, {user_obj.username}!")
+                        return redirect('index')
+                else:
+                    messages.error(request, "Invalid login credentials.")
+
+            except Exception as e:
+                messages.error(request, f"Login failed: {e}")
     else:
         form = CustomLoginForm()
-    return render(request, 'accounts/login.html', {'form': form})
+
+    return render(request, "accounts/login.html", {"form": form})
+
 
 def logout_view(request):
     logout(request)
