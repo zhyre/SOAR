@@ -12,6 +12,18 @@ from django.core.exceptions import ImproperlyConfigured
 def index(request):
     return render(request, "accounts/index.html")
 
+@login_required
+def organization(request):
+    return render(request, "accounts/organization.html")
+
+@login_required
+def profile(request):
+    return render(request, "accounts/profile.html")
+
+@login_required
+def members_management(request):
+    return render(request, "accounts/members_management.html")
+
 SUPABASE_URL = config("SUPABASE_URL", default=None)
 SUPABASE_KEY = config("SUPABASE_KEY", default=None)
 

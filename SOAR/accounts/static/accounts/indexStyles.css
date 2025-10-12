@@ -509,19 +509,7 @@ a {
 }
 
 .welcome-banner {
-    background: linear-gradient(135deg, #2563eb, #3b82f6);
-    color: white;
-    padding: 2rem;
-    border-radius: 1rem;
-    margin-bottom: 2rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
-}
-
-.welcome-banner h1 {
-    font-size: 2rem;
-    font-weight: 700;
+    background: transparent;
     margin-bottom: 0.5rem;
     color: white;
 }
