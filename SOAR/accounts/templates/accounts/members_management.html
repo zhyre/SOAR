@@ -1,0 +1,761 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOAR - Members Management</title>
+    <link rel="stylesheet" href="{% static 'accounts/organization.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/members_management.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Additional inline styles */
+        .member-row[data-member-id] {
+            transition: opacity 0.3s ease;
+        }
+        
+        /* Simple Modal Styles */
+        .simple-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .simple-modal.show {
+            display: flex;
+        }
+        
+        .simple-modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .simple-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .simple-modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #111827;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 4px 8px;
+            line-height: 1;
+        }
+        
+        .close-btn:hover {
+            color: #374151;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .error-message {
+            color: #dc2626;
+            font-size: 0.75rem;
+            margin-top: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body class="organization-page">
+    <!-- Overlay for mobile sidebar -->
+    <div class="overlay"></div>
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR Logo" class="logo">
+                <h2>SOAR</h2>
+                <span class="sidebar-close"><i class="fas fa-times"></i></span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'index' %}" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'organization' %}" class="nav-item active">
+                    <i class="fas fa-users"></i>
+                    <span>My Organizations</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>My Events</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Announcements</span>
+                </a>
+                <a href="{% url 'profile' %}" class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </nav>
+        </aside>
+
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="menu-toggle" aria-label="Toggle menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">Team Members</h2>
+                    </div>
+                    <div class="breadcrumb">
+                        <a href="{% url 'organization' %}">Organization</a>
+                        <i class="fas fa-chevron-right"></i>
+                        <span class="current">Members Management</span>
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <div class="notifications">
+                        <i class="far fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" alt="{{ user.username }}">
+                        <span>{{ user.username }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="members-management">
+                    <div class="members-header">
+                        <div class="header-content">
+                            <h1>Members Management</h1>
+                            <p>Manage your organization members and their roles</p>
+                        </div>
+                        <div class="header-actions">
+                            <div class="search-filter-bar">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" placeholder="Search members..." id="member-search" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Member Form -->
+                    <div class="add-member-form-container">
+                        <h3>Add New Member</h3>
+                        <form id="add-member-form" class="add-member-form">
+                            <div class="form-group">
+                                <label for="member-name">Member Name</label>
+                                <input type="text" id="member-name" name="name" required 
+                                       placeholder="Enter member's name">
+                                <div id="name-error" class="error-message"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="member-role">Role</label>
+                                <select id="member-role" name="role" required>
+                                    <option value="" disabled selected>Select a role</option>
+                                    <option value="Member">Member</option>
+                                    <option value="Officer">Officer</option>
+                                </select>
+                                <div id="role-error" class="error-message"></div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Add Member
+                                </button>
+                            </div>
+                        </form>
+                        <div id="success-message" class="success-message" style="display: none;">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Member added successfully!</span>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">
+                                <h2>Members</h2>
+                                <span class="member-count">2 members</span>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="members-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Role</th>
+                                        <th>Date Added</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="members-tbody">
+                                    <tr class="member-row" data-member-id="1" data-name="John Doe" data-email="johndoe@example.com" data-role="admin">
+                                        <td>
+                                            <div class="member-info">
+                                                <div class="member-avatar">JD</div>
+                                                <div class="member-details">
+                                                    <div class="member-name">John Doe</div>
+                                                    <div class="member-email">johndoe@example.com</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="role-tag admin">Admin</span>
+                                        </td>
+                                        <td>2023-01-15</td>
+                                        <td>
+                                            <span class="status-badge active">Active</span>
+                                        </td>
+                                        <td class="actions">
+                                            <button class="btn-icon" title="Demote to Member" onclick="toggleMemberRole('1', 'admin')">
+                                                <i class="fas fa-arrow-down"></i>
+                                            </button>
+                                            <button class="btn-icon danger" title="Remove Member" onclick="confirmRemoveMember('1', 'John Doe')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="member-row" data-member-id="2" data-name="Jane Smith" data-email="jane.smith@example.com" data-role="member">
+                                        <td>
+                                            <div class="member-info">
+                                                <div class="member-avatar">JS</div>
+                                                <div class="member-details">
+                                                    <div class="member-name">Jane Smith</div>
+                                                    <div class="member-email">jane.smith@example.com</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="role-tag member">Member</span>
+                                        </td>
+                                        <td>2023-02-20</td>
+                                        <td>
+                                            <span class="status-badge active">Active</span>
+                                        </td>
+                                        <td class="actions">
+                                            <button class="btn-icon" title="Promote to Admin" onclick="toggleMemberRole('2', 'member')">
+                                                <i class="fas fa-arrow-up"></i>
+                                            </button>
+                                            <button class="btn-icon danger" title="Remove Member" onclick="confirmRemoveMember('2', 'Jane Smith')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div id="no-members" class="no-results" style="display: none;">
+                                <i class="fas fa-users-slash"></i>
+                                <p>No members found matching your search</p>
+                            </div>
+                        </div>
+                        
+                        <div class="pagination">
+                            <span>Showing 1 to 2 of 2 entries</span>
+                            <div class="table-actions">
+                                <!-- Add Member button removed -->
+                            </div>
+                            <button class="pagination-btn active">1</button>
+                            <button class="pagination-btn" disabled>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <style>
+        /* Add Member Form Styles */
+        .add-member-form-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .add-member-form-container h3 {
+            color: #1e293b;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .add-member-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #475569;
+            font-size: 0.875rem;
+        }
+
+        .add-member-form input[type="text"],
+        .add-member-form select {
+            width: 100%;
+            padding: 0.625rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.9375rem;
+            transition: all 0.2s ease;
+        }
+
+        .add-member-form input[type="text"]:focus,
+        .add-member-form select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-actions {
+            margin-top: 1.25rem;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.625rem 1.25rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #1d4ed8;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            min-height: 1rem;
+        }
+
+        .success-message {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            background: #d1fae5;
+            color: #065f46;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .success-message i {
+            color: #10b981;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .add-member-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+
+    <script>
+        // Initialize when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+            const sidebarClose = document.querySelector('.sidebar-close');
+            const addMemberBtn = document.getElementById('add-member-btn');
+            const addMemberModal = document.getElementById('add-member-modal');
+            const closeAddMemberModal = document.getElementById('close-add-member-modal');
+            const cancelAddMember = document.getElementById('cancel-add-member');
+            const addMemberForm = document.getElementById('add-member-form');
+            const searchInput = document.getElementById('member-search');
+            const noMembersMessage = document.getElementById('no-members');
+
+            // Toggle sidebar
+            function toggleSidebar() {
+                sidebar.classList.toggle('show');
+                overlay.classList.toggle('show');
+                document.body.classList.toggle('no-scroll');
+                
+                // Toggle aria-expanded for accessibility
+                const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true' || false;
+                menuToggle.setAttribute('aria-expanded', !isExpanded);
+            }
+
+            // Show add member modal
+            function showAddMemberModal() {
+                addMemberModal.classList.add('show');
+                overlay.classList.add('show');
+                document.body.classList.add('no-scroll');
+                
+                // Focus the first input when modal opens
+                const firstInput = addMemberModal.querySelector('input');
+                if (firstInput) {
+                    setTimeout(() => firstInput.focus(), 100);
+                }
+            }
+
+            // Hide add member modal
+            function hideAddMemberModal() {
+                addMemberModal.classList.remove('show');
+                overlay.classList.remove('show');
+                document.body.classList.remove('no-scroll');
+                
+                // Reset form when hiding modal
+                if (addMemberForm) {
+                    addMemberForm.reset();
+                    clearMemberErrors();
+                }
+            }
+
+            // Clear all member form errors
+            function clearMemberErrors() {
+                const errorElements = document.querySelectorAll('.error-message');
+                errorElements.forEach(el => {
+                    el.textContent = '';
+                    el.style.display = 'none';
+                });
+            }
+
+            // Show error message for a specific field
+            function showError(fieldId, message) {
+                const errorElement = document.getElementById(fieldId);
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
+                }
+            }
+
+            // Get initials from name (e.g., "John Doe" -> "JD")
+            function getInitials(name) {
+                return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            }
+
+            // Event Listeners
+            if (menuToggle) menuToggle.addEventListener('click', toggleSidebar);
+            if (overlay) overlay.addEventListener('click', toggleSidebar);
+            if (sidebarClose) sidebarClose.addEventListener('click', toggleSidebar);
+
+            // Modal event listeners
+            if (addMemberBtn) addMemberBtn.addEventListener('click', showAddMemberModal);
+            if (closeAddMemberModal) closeAddMemberModal.addEventListener('click', hideAddMemberModal);
+            if (cancelAddMember) cancelAddMember.addEventListener('click', hideAddMemberModal);
+
+            // Search functionality
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const memberRows = document.querySelectorAll('.member-row');
+                    
+                    memberRows.forEach(row => {
+                        const name = row.getAttribute('data-name').toLowerCase();
+                        const email = row.getAttribute('data-email').toLowerCase();
+                        const role = row.getAttribute('data-role').toLowerCase();
+                        
+                        if (name.includes(searchTerm) || 
+                            email.includes(searchTerm) || 
+                            role.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            // Form submission
+            if (addMemberForm) {
+                addMemberForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form data
+                    const formData = new FormData(addMemberForm);
+                    const name = formData.get('name').trim();
+                    const role = formData.get('role');
+                    
+                    // Clear previous errors
+                    clearMemberErrors();
+                    
+                    // Validate form
+                    let isValid = true;
+                    
+                    if (!name) {
+                        showError('name-error', 'Name is required');
+                        document.getElementById('member-name').focus();
+                        isValid = false;
+                    }
+                    
+                    if (!role) {
+                        showError('role-error', 'Please select a role');
+                        if (isValid) document.getElementById('member-role').focus();
+                        isValid = false;
+                    }
+                    
+                    if (!isValid) return;
+                    
+                    // Simulate form submission with loading state
+                    const submitBtn = addMemberForm.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        // Create new member row
+                        const newMemberId = Date.now().toString();
+                        const newMemberRow = document.createElement('tr');
+                        newMemberRow.className = 'member-row';
+                        newMemberRow.setAttribute('data-member-id', newMemberId);
+                        newMemberRow.setAttribute('data-name', name);
+                        newMemberRow.setAttribute('data-email', `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`);
+                        newMemberRow.setAttribute('data-role', role);
+                        
+                        // Get today's date in YYYY-MM-DD format
+                        const today = new Date();
+                        const formattedDate = today.toISOString().split('T')[0];
+                        
+                        // Create the member row HTML with the same structure as existing members
+                        newMemberRow.innerHTML = `
+                            <td>
+                                <div class="member-info">
+                                    <div class="member-avatar">${getInitials(name)}</div>
+                                    <div class="member-details">
+                                        <div class="member-name">${name}</div>
+                                        <div class="member-email">${name.toLowerCase().replace(/\s+/g, '.')}@example.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="role-tag ${role.toLowerCase()}">${role}</span>
+                            </td>
+                            <td>${formattedDate}</td>
+                            <td>
+                                <span class="status-badge active">Active</span>
+                            </td>
+                            <td class="actions">
+                                <button class="btn-icon" title="${role === 'admin' ? 'Demote to Member' : 'Promote to Admin'}" 
+                                        onclick="toggleMemberRole('${newMemberId}', '${role}')">
+                                    <i class="fas fa-${role === 'admin' ? 'arrow-down' : 'arrow-up'}"></i>
+                                </button>
+                                <button class="btn-icon danger" title="Remove Member" 
+                                        onclick="confirmRemoveMember('${newMemberId}', '${name.replace(/'/g, '\'')}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        
+                        // Add the new row to the table
+                        const tbody = document.querySelector('#members-tbody');
+                        if (tbody) {
+                            tbody.prepend(newMemberRow);
+                            
+                            // Update member count
+                            const memberCount = document.querySelectorAll('.member-row').length;
+                            const memberCountElement = document.querySelector('.member-count');
+                            if (memberCountElement) {
+                                memberCountElement.textContent = `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`;
+                            }
+                            
+                            // Hide no members message if shown
+                            if (noMembersMessage) {
+                                noMembersMessage.style.display = 'none';
+                            }
+                        }
+                        
+                        // Reset form and hide modal
+                        addMemberForm.reset();
+                        hideAddMemberModal();
+                        
+                        // Reset button state
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                        
+                        // Show success message
+                        showSuccessMessage('Member added successfully!');
+                    }, 800);
+                });
+            }
+        });
+
+        // Toggle member role (promote/demote)
+        function toggleMemberRole(memberId, currentRole) {
+            const newRole = currentRole === 'admin' ? 'member' : 'admin';
+            const roleText = newRole === 'admin' ? 'promote to Admin' : 'demote to Member';
+            
+            if (confirm(`Are you sure you want to ${roleText}?`)) {
+                // Here you would typically make an AJAX call to update the role
+                const memberRow = document.querySelector(`.member-row[data-member-id="${memberId}"]`);
+                if (memberRow) {
+                    // Update data attribute
+                    memberRow.setAttribute('data-role', newRole);
+                    
+                    // Update role display
+                    const roleElement = memberRow.querySelector('.role-tag');
+                    if (roleElement) {
+                        roleElement.textContent = newRole === 'admin' ? 'Admin' : 'Member';
+                        roleElement.className = 'role-tag ' + newRole;
+                    }
+                    
+                    // Update toggle button
+                    const toggleBtn = memberRow.querySelector('.btn-icon:not(.danger)');
+                    if (toggleBtn) {
+                        toggleBtn.title = newRole === 'admin' ? 'Demote to Member' : 'Promote to Admin';
+                        const icon = toggleBtn.querySelector('i');
+                        if (icon) {
+                            icon.className = 'fas fa-' + (newRole === 'admin' ? 'arrow-down' : 'arrow-up');
+                        }
+                    }
+                    
+                    showSuccessMessage(`Member successfully ${newRole === 'admin' ? 'promoted to Admin' : 'demoted to Member'}`);
+                }
+            }
+        }
+
+        // Confirm member removal
+        function confirmRemoveMember(memberId, memberName) {
+            if (confirm(`Are you sure you want to remove ${memberName} from the organization?`)) {
+                const memberRow = document.querySelector(`.member-row[data-member-id="${memberId}"]`);
+                if (memberRow) {
+                    // Add fade out animation
+                    memberRow.style.transition = 'opacity 0.3s ease';
+                    memberRow.style.opacity = '0';
+                    
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        memberRow.remove();
+                        
+                        // Update member count
+                        const memberCount = document.querySelector('.member-count');
+                        const noMembersMessage = document.getElementById('no-members');
+                        
+                        if (memberCount) {
+                            const count = document.querySelectorAll('.member-row').length;
+                            memberCount.textContent = `${count} ${count === 1 ? 'member' : 'members'}`;
+                            
+                            // Show no members message if no members left
+                            if (count === 0 && noMembersMessage) {
+                                noMembersMessage.style.display = 'flex';
+                            }
+                        }
+                        
+                        showSuccessMessage('Member removed successfully');
+                    }, 300);
+                }
+            }
+        }
+
+        // Show success message with animation
+        function showSuccessMessage(message) {
+            const successMessage = document.getElementById('success-message');
+            if (successMessage) {
+                const messageText = successMessage.querySelector('span');
+                if (messageText) {
+                    messageText.textContent = message;
+                }
+                
+                // Show message with fade in
+                successMessage.style.display = 'flex';
+                setTimeout(() => {
+                    successMessage.style.opacity = '1';
+                }, 10);
+                
+                // Hide message after delay with fade out
+                setTimeout(() => {
+                    successMessage.style.opacity = '0';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 300);
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
