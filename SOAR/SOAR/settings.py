@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'SOAR.organization',
     'SOAR.accounts',
 ]
@@ -56,7 +57,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'SOAR.urls'
+# ROOT_URLCONF = 'SOAR.urls'
 
 TEMPLATES = [
     {
@@ -150,4 +151,6 @@ LOGIN_REDIRECT_URL = '/accounts/'
 
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
+MEDIA_URL = '/media/'
 
+MEDIA_ROOT = BASE_DIR / 'media'

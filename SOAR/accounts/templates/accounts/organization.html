@@ -106,15 +106,15 @@
                                     <div class="profile-picture-section">
                                         <div class="profile-preview">
                                             <div class="profile-avatar" id="org-logo">
-                                                <img src="{% static 'accounts/org-placeholder.png' %}" alt="Organization Logo" id="preview-logo">
+                                                <img src="{{ organization.logo.url }}" alt="{{ organization.name }}" id="preview-logo">
                                                 <div class="avatar-overlay">
                                                     <i class="fas fa-camera"></i>
                                                 </div>
                                             </div>
                                             <div class="profile-info">
-                                                <h4 id="preview-org-name">Computer Science Society</h4>
-                                                <p class="profile-role">@cssociety</p>
-                                                <p class="org-bio">A vibrant community of computer science enthusiasts dedicated to advancing technology education.</p>
+                                                <h4 id="preview-org-name">{{ organization.name }}</h4>
+                                                <p class="profile-role">@{{ organization.handle }}</p>
+                                                <p class="org-bio">{{ organization.bio }}</p>
                                             </div>
                                         </div>
                                         <div class="profile-actions">
@@ -143,14 +143,14 @@
                                             <div class="form-row">
                                                 <div class="form-group">
                                                     <label for="org-name">Organization Name *</label>
-                                                    <input type="text" id="org-name" name="org_name" required value="Computer Science Society">
+                                                    <input type="text" id="org-name" name="org_name" required value="{{ organization.name }}">
                                                     <div class="error-message" id="org-name-error"></div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="org-handle">Organization Handle *</label>
                                                     <div class="input-with-at">
                                                         <span class="at-symbol">@</span>
-                                                        <input type="text" id="org-handle" name="org_handle" required value="cssociety">
+                                                        <input type="text" id="org-handle" name="org_handle" required value="{{ organization.handle }}">
                                                     </div>
                                                     <div class="error-message" id="handle-error"></div>
                                                 </div>
@@ -159,7 +159,7 @@
                                             <div class="form-row">
                                                 <div class="form-group">
                                                     <label for="org-email">Email Address *</label>
-                                                    <input type="email" id="org-email" name="org_email" required value="contact@cssociety.edu">
+                                                    <input type="email" id="org-email" name="org_email" required value="{{ organization.email }}">
                                                     <div class="error-message" id="email-error"></div>
                                                 </div>
                                                 <div class="form-group">
@@ -170,7 +170,7 @@
                                             
                                             <div class="form-group">
                                                 <label for="org-about">About Organization</label>
-                                                <textarea id="org-about" name="org_about" rows="4" maxlength="500" placeholder="Tell us about your organization, its mission, and activities...">A vibrant community of computer science enthusiasts dedicated to advancing technology education and fostering innovation. We organize workshops, hackathons, and networking events to help students develop their technical and professional skills.</textarea>
+                                                <textarea id="org-about" name="org_about">{{ organization.about }}</textarea>
                                                 <div class="char-counter">
                                                     <span id="about-count">0</span>/500 characters
                                                 </div>
@@ -296,52 +296,27 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {% for member in organization.members.all %}
                                         <tr>
                                             <td>
                                                 <div class="member-info">
-                                                    <img src="https://ui-avatars.com/api/?name=John+Doe&background=2563eb&color=fff" alt="John Doe" class="member-avatar">
+                                                    <img src="https://ui-avatars.com/api/?name={{ member.get_full_name|urlencode }}&background=2563eb&color=fff" alt="{{ member.get_full_name }}" class="member-avatar">
                                                     <div>
-                                                        <div class="member-name">John Doe</div>
-                                                        <div class="member-id">@johndoe</div>
+                                                        <div class="member-name">{{ member.get_full_name }}</div>
+                                                        <div class="member-id">@{{ member.username }}</div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>john.doe@example.com</td>
-                                            <td><span class="role-tag admin">Admin</span></td>
-                                            <td>Jan 15, 2023</td>
+                                            <td>{{ member.email }}</td>
+                                            <td><span class="role-tag {% if member.is_admin %}admin{% else %}member{% endif %}">{{ member.get_role_display }}</span></td>
+                                            <td>{{ member.date_joined|date:"M d, Y" }}</td>
                                             <td><span class="status-badge active">Active</span></td>
                                             <td class="actions">
-                                                <button class="btn-icon" title="Edit Member">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn-icon danger" title="Remove Member">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                <button class="btn-icon" title="Edit Member"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon danger" title="Remove Member"><i class="fas fa-trash"></i></button>
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="member-info">
-                                                    <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=10b981&color=fff" alt="Jane Smith" class="member-avatar">
-                                                    <div>
-                                                        <div class="member-name">Jane Smith</div>
-                                                        <div class="member-id">@janesmith</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>jane.smith@example.com</td>
-                                            <td><span class="role-tag member">Member</span></td>
-                                            <td>Feb 20, 2023</td>
-                                            <td><span class="status-badge active">Active</span></td>
-                                            <td class="actions">
-                                                <button class="btn-icon" title="Edit Member">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn-icon danger" title="Remove Member">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </div>

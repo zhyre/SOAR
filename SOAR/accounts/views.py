@@ -7,14 +7,26 @@ from .models import User
 from supabase import create_client
 from decouple import config
 from django.core.exceptions import ImproperlyConfigured
+from SOAR.organization.models import Organization
+from django.shortcuts import render, get_object_or_404
 
 @login_required
 def index(request):
-    return render(request, "accounts/index.html")
+    user_orgs = Organization.objects.filter(members__student=request.user, members__is_approved=True)
+    org_data = []
+    for org in user_orgs:
+        org_data.append({
+            "org": org,
+            "member_count": org.members.filter(is_approved=True).count()
+        })
+
+    return render(request, "accounts/index.html", {"org_data": org_data})
 
 @login_required
-def organization(request):
-    return render(request, "accounts/organization.html")
+def organization_page(request):
+    """Display all organizations dynamically."""
+    organizations = Organization.objects.all()
+    return render(request, 'accounts/organization.html', {'organizations': organizations})
 
 @login_required
 def profile(request):
@@ -39,7 +51,7 @@ def register(request):
         form = StudentRegistrationForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data.get("email")
-            password = form.cleaned_data.get("password1")  
+            password = form.cleaned_data.get("password1")
             username = email.split("@")[0]
 
             try:
@@ -142,3 +154,7 @@ def logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
     return redirect('login')
+
+def organization_view(request):
+    organization = get_object_or_404(Organization, user=request.user)
+    return render(request, 'accounts/organizational.html', {'organization': organization})
