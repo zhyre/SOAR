@@ -1,0 +1,349 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ organization.name }} - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar {
+            transition: transform 0.3s ease, width 0.3s ease;
+        }
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        .sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+            }
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Collapsible Sidebar -->
+       <aside id="sidebar" class="sidebar bg-[#0f172a] text-white w-64 flex-shrink-0 overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                            <i class="fas fa-graduation-cap text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="logo-text text-xl font-bold">SOAR</span>
+                    </div>
+                    <button id="sidebarToggle" class="hidden md:block p-2 hover:bg-blue-500 rounded-lg transition">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+
+                <!-- Organization Info -->
+                <div class="mb-8 pb-6 border-b border-blue-500">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-blue-600 text-lg"></i>
+                        </div>
+                        <div class="sidebar-text">
+                            <h3 class="font-semibold text-sm">{{ organization.name|default:"Computer Science Society" }}</h3>
+                            <p class="text-blue-200 text-xs">128 members</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-blue-500 bg-opacity-50 hover:bg-opacity-70 transition">
+                        <i class="fas fa-home text-lg"></i>
+                        <span class="sidebar-text font-medium">Feed</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-calendar-alt text-lg"></i>
+                        <span class="sidebar-text font-medium">Events</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-bullhorn text-lg"></i>
+                        <span class="sidebar-text font-medium">Announcements</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-user-friends text-lg"></i>
+                        <span class="sidebar-text font-medium">Members</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-images text-lg"></i>
+                        <span class="sidebar-text font-medium">Gallery</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-cog text-lg"></i>
+                        <span class="sidebar-text font-medium">Settings</span>
+                    </a>
+                </nav>
+
+                <!-- Back to Dashboard -->
+                <div class="mt-8 pt-6 border-t border-blue-500">
+                    <a href="{% url 'index' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-arrow-left text-lg"></i>
+                        <span class="sidebar-text font-medium">Back to Dashboard</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center space-x-4">
+                        <button id="mobileMenuToggle" class="md:hidden p-2 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-bars text-gray-600"></i>
+                        </button>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">Organization Feed</h1>
+                            <p class="text-sm text-gray-500">Stay updated with the latest activities</p>
+                        </div>
+                    </div>
+
+                    <!-- Top Right Buttons -->
+                    <div class="flex items-center space-x-3">
+                        <a href="{% url 'organization_profile' %}" class="hidden sm:flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            <i class="fas fa-building"></i>
+                            <span>Organization Profile</span>
+                        </a>
+                        <a href="{% url 'membermanagement' %}" class="hidden sm:flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                            <i class="fas fa-users-cog"></i>
+                            <span>Member Management</span>
+                        </a>
+                        
+                        <!-- Mobile Dropdown -->
+                        <div class="sm:hidden relative">
+                            <button id="mobileActionsBtn" class="p-2 hover:bg-gray-100 rounded-lg">
+                                <i class="fas fa-ellipsis-v text-gray-600"></i>
+                            </button>
+                            <div id="mobileActionsMenu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                                <a href="{% url 'organization_profile' %}" class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-building text-blue-600"></i>
+                                    <span>Organization Profile</span>
+                                </a>
+                                <a href="{% url 'membermanagement' %}" class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-users-cog text-green-600"></i>
+                                    <span>Member Management</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- User Profile -->
+                        <div class="flex items-center space-x-3 pl-3 border-l border-gray-200">
+                            <div class="hidden md:block text-right">
+                                <p class="text-sm font-medium text-gray-700">{{ user.username }}</p>
+                                <p class="text-xs text-gray-500">Admin</p>
+                            </div>
+                            <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" 
+                                 alt="{{ user.username }}" 
+                                 class="w-10 h-10 rounded-full border-2 border-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Create Post Card -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <div class="flex items-center space-x-4">
+                        <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" 
+                             alt="{{ user.username }}" 
+                             class="w-12 h-12 rounded-full">
+                        <button class="flex-1 text-left px-4 py-3 bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 transition">
+                            What's on your mind?
+                        </button>
+                        <button class="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition font-medium">
+                            Post
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feed Posts -->
+                <div class="space-y-6">
+                    <!-- Post Card 1 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <img src="https://ui-avatars.com/api/?name=Sarah+Johnson&background=10b981&color=fff" 
+                                         alt="Sarah Johnson" 
+                                         class="w-12 h-12 rounded-full">
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">Sarah Johnson</h3>
+                                        <p class="text-sm text-gray-500">President • 2 hours ago</p>
+                                    </div>
+                                </div>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg">
+                                    <i class="fas fa-ellipsis-h text-gray-500"></i>
+                                </button>
+                            </div>
+                            <p class="text-gray-700 mb-4">
+                                Excited to announce our upcoming Hackathon 2024! 🚀 Register now and showcase your coding skills. 
+                                Prizes worth $5000 await the winners!
+                            </p>
+                            <div class="flex items-center space-x-6 pt-4 border-t border-gray-100">
+                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
+                                    <i class="far fa-heart"></i>
+                                    <span>24</span>
+                                </button>
+                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
+                                    <i class="far fa-comment"></i>
+                                    <span>8</span>
+                                </button>
+                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
+                                    <i class="far fa-share-square"></i>
+                                    <span>Share</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Post Card 2 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <img src="https://ui-avatars.com/api/?name=Michael+Chen&background=f59e0b&color=fff" 
+                                         alt="Michael Chen" 
+                                         class="w-12 h-12 rounded-full">
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">Michael Chen</h3>
+                                        <p class="text-sm text-gray-500">Vice President • 5 hours ago</p>
+                                    </div>
+                                </div>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg">
+                                    <i class="fas fa-ellipsis-h text-gray-500"></i>
+                                </button>
+                            </div>
+                            <p class="text-gray-700 mb-4">
+                                Great turnout at yesterday's workshop! Thanks to everyone who attended. 
+                                Looking forward to our next session on Machine Learning fundamentals.
+                            </p>
+                            <div class="grid grid-cols-2 gap-2 mb-4">
+                                <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400" 
+                                     alt="Workshop" 
+                                     class="w-full h-48 object-cover rounded-lg">
+                                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400" 
+                                     alt="Workshop" 
+                                     class="w-full h-48 object-cover rounded-lg">
+                            </div>
+                            <div class="flex items-center space-x-6 pt-4 border-t border-gray-100">
+                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
+                                    <i class="far fa-heart"></i>
+                                    <span>42</span>
+                                </button>
+                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
+                                    <i class="far fa-comment"></i>
+                                    <span>15</span>
+                                </button>
+                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
+                                    <i class="far fa-share-square"></i>
+                                    <span>Share</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Post Card 3 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+                                        CS
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">Computer Science Society</h3>
+                                        <p class="text-sm text-gray-500">Official • Yesterday</p>
+                                    </div>
+                                </div>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg">
+                                    <i class="fas fa-ellipsis-h text-gray-500"></i>
+                                </button>
+                            </div>
+                            <p class="text-gray-700 mb-4">
+                                📢 Important: General Assembly meeting scheduled for next Friday at 3 PM. 
+                                All members are encouraged to attend. We'll be discussing upcoming events and initiatives.
+                            </p>
+                            <div class="flex items-center space-x-6 pt-4 border-t border-gray-100">
+                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
+                                    <i class="far fa-heart"></i>
+                                    <span>18</span>
+                                </button>
+                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
+                                    <i class="far fa-comment"></i>
+                                    <span>5</span>
+                                </button>
+                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
+                                    <i class="far fa-share-square"></i>
+                                    <span>Share</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle for desktop
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        sidebarToggle?.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const overlay = document.getElementById('overlay');
+        
+        mobileMenuToggle?.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('hidden');
+        });
+
+        overlay?.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.add('hidden');
+        });
+
+        // Mobile actions dropdown
+        const mobileActionsBtn = document.getElementById('mobileActionsBtn');
+        const mobileActionsMenu = document.getElementById('mobileActionsMenu');
+        
+        mobileActionsBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileActionsMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', () => {
+            mobileActionsMenu?.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

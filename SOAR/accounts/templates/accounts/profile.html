@@ -26,9 +26,9 @@
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="{% url 'organization' %}" class="nav-item">
-                    <i class="fas fa-users"></i>
-                    <span>My Organizations</span>
+                <a href="{% url 'profile' %}" class="nav-item active">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
                 </a>
                 <a href="#" class="nav-item">
                     <i class="fas fa-calendar-check"></i>
@@ -38,11 +38,20 @@
                     <i class="fas fa-bullhorn"></i>
                     <span>Announcements</span>
                 </a>
-                <a href="{% url 'profile' %}" class="nav-item active">
-                    <i class="fas fa-user"></i>
-                    <span>My Profile</span>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
                 </a>
             </nav>
+
+            <!-- Logout -->
+            <a href="#" class="nav-item" onclick="document.getElementById('logout-form').submit(); return false;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+            <form id="logout-form" method="POST" action="{% url 'logout' %}" style="display: none;">
+                {% csrf_token %}
+            </form>
         </aside>
 
         <!-- Main Content -->

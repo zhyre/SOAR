@@ -120,35 +120,53 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR Logo" class="logo">
+                <img src="{{ organization.logo.url }}" alt="{{ organization.name }}" class="w-8 h-8">
                 <h2>SOAR</h2>
                 <span class="sidebar-close"><i class="fas fa-times"></i></span>
             </div>
+
+            <!-- Organization Info -->
+            <div class="mb-8 pb-6 border-b border-blue-500">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-blue-600 text-lg"></i>
+                    </div>
+                    <div class="sidebar-text">
+                        <h3 class="font-semibold text-sm">{{ organization.name|default:"Computer Science Society" }}</h3>
+                        <p class="text-blue-200 text-xs">128 members</p>
+                    </div>
+                </div>
+            </div>
+
             <nav class="sidebar-nav">
-                <a href="{% url 'index' %}" class="nav-item">
+                <a href="{% url 'orgpage' %}" class="nav-item">
                     <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="{% url 'organization' %}" class="nav-item active">
-                    <i class="fas fa-users"></i>
-                    <span>My Organizations</span>
+                    <span>Feed</span>
                 </a>
                 <a href="#" class="nav-item">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>My Events</span>
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Events</span>
                 </a>
                 <a href="#" class="nav-item">
                     <i class="fas fa-bullhorn"></i>
                     <span>Announcements</span>
                 </a>
-                <a href="{% url 'profile' %}" class="nav-item">
-                    <i class="fas fa-user"></i>
-                    <span>My Profile</span>
+                <a href="{% url 'membermanagement' %}" class="nav-item active">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Members</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-images"></i>
+                    <span>Gallery</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-building"></i>
+                    <span>Organization Profile</span>
                 </a>
             </nav>
+
+            <!-- Back to Organization -->
         </aside>
-
-
         <main class="main-content">
             <header class="top-bar">
                 <div class="top-bar-left">
@@ -159,8 +177,6 @@
                         <h2 class="mb-0">Team Members</h2>
                     </div>
                     <div class="breadcrumb">
-                        <a href="{% url 'organization' %}">Organization</a>
-                        <i class="fas fa-chevron-right"></i>
                         <span class="current">Members Management</span>
                     </div>
                 </div>
@@ -178,25 +194,24 @@
             </header>
 
             <div class="dashboard-content">
-                <div class="members-management">
-                    <div class="members-header">
-                        <div class="header-content">
-                            <h1>Members Management</h1>
-                            <p>Manage your organization members and their roles</p>
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800 mb-2">Members Management</h1>
+                            <p class="text-sm text-gray-500">Manage your organization members and their roles</p>
                         </div>
-                        <div class="header-actions">
-                            <div class="search-filter-bar">
-                                <div class="search-box">
-                                    <i class="fas fa-search"></i>
-                                    <input type="text" placeholder="Search members..." id="member-search" autocomplete="off">
-                                </div>
+                        <div class="search-filter-bar">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="Search members..." id="member-search" autocomplete="off" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             </div>
                         </div>
                     </div>
+                </div>
 
                     <!-- Add Member Form -->
-                    <div class="add-member-form-container">
-                        <h3>Add New Member</h3>
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Add New Member</h3>
                         <form id="add-member-form" class="add-member-form">
                             <div class="form-group">
                                 <label for="member-name">Member Name</label>
@@ -225,12 +240,10 @@
                         </div>
                     </div>
 
-                    <div class="table-container">
-                        <div class="table-header">
-                            <div class="table-title">
-                                <h2>Members</h2>
-                                <span class="member-count">2 members</span>
-                            </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800">Members</h2>
+                            <span class="member-count text-sm text-gray-500">2 members</span>
                         </div>
                         
                         <div class="table-responsive">

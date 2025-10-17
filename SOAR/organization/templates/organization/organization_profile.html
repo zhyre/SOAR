@@ -1,0 +1,417 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOAR - Organization Management</title>
+    <link rel="stylesheet" href="{% static 'accounts/organization.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/profile.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Overlay for mobile sidebar -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar bg-[#0f172a] text-white w-64 flex-shrink-0 overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center space-x-3">
+                        <img src="{{ organization.logo.url }}" alt="{{ organization.name }}" class="w-8 h-8">
+                        <span class="logo-text text-xl font-bold">SOAR</span>
+                    </div>
+                    <button id="sidebarToggle" class="hidden md:block p-2 hover:bg-blue-500 rounded-lg transition">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+
+            <!-- Organization Info -->
+            <div class="mb-8 pb-6 border-b border-blue-500">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-blue-600 text-lg"></i>
+                    </div>
+                    <div class="sidebar-text">
+                        <h3 class="font-semibold text-sm">{{ organization.name|default:"Computer Science Society" }}</h3>
+                        <p class="text-blue-200 text-xs">128 members</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="{% url 'orgpage' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                    <i class="fas fa-home text-lg"></i>
+                    <span class="sidebar-text font-medium">Feed</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Events</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Announcements</span>
+                </a>
+                <a href="{% url 'membermanagement' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Members</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                    <i class="fas fa-images"></i>
+                    <span>Gallery</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-blue-500 bg-opacity-50 hover:bg-opacity-70 transition">
+                    <i class="fas fa-building"></i>
+                    <span>Organization Profile</span>
+                </a>
+            </nav>
+
+            <!-- Logout -->
+            <div class="mt-8 pt-6 border-t border-blue-500">
+                <form method="POST" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-sign-out-alt text-lg"></i>
+                        <span class="font-medium">Logout</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center space-x-4">
+                        <button id="mobileMenuToggle" class="md:hidden p-2 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-bars text-gray-600"></i>
+                        </button>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-800">Organization Profile</h1>
+                            <p class="text-sm text-gray-500">Manage your organization details and settings</p>
+                        </div>
+                    </div>
+
+                    <!-- Top Right Buttons -->
+                    <div class="flex items-center space-x-3">
+                        <a href="{% url 'membermanagement' %}" class="hidden sm:flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                            <i class="fas fa-users-cog"></i>
+                            <span>Member Management</span>
+                        </a>
+                        
+                        <!-- Mobile Dropdown -->
+                        <div class="sm:hidden relative">
+                            <button id="mobileActionsBtn" class="p-2 hover:bg-gray-100 rounded-lg">
+                                <i class="fas fa-ellipsis-v text-gray-600"></i>
+                            </button>
+                            <div id="mobileActionsMenu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                                <a href="{% url 'membermanagement' %}" class="flex items-center space-x-2 px-4 py-2 hover:bg-gray-100">
+                                    <i class="fas fa-users-cog text-green-600"></i>
+                                    <span>Member Management</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- User Profile -->
+                        <div class="flex items-center space-x-3 pl-3 border-l border-gray-200">
+                            <div class="hidden md:block text-right">
+                                <p class="text-sm font-medium text-gray-700">{{ user.username }}</p>
+                                <p class="text-xs text-gray-500">Admin</p>
+                            </div>
+                            <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" 
+                                 alt="{{ user.username }}" 
+                                 class="w-10 h-10 rounded-full border-2 border-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Organization Header -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">Organization Profile</h1>
+                    <p class="text-sm text-gray-500">Manage your organization details and settings</p>
+                </div>
+
+                <!-- Organization Content -->
+                <div class="bg-white rounded-xl shadow-sm p-6" id="organization-details" style="display: block;">
+                    <div class="space-y-6">
+                        <div class="mb-6">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-2">General Information</h2>
+                            <p class="text-sm text-gray-500">Update your organization details below.</p>
+                        </div>
+                        <div class="profile-content">
+                            <form class="edit-profile-form" id="edit-org-form">
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <!-- Organization Logo Section -->
+                                    <div class="lg:col-span-1">
+                                        <div class="profile-preview">
+                                            <div class="profile-avatar" id="org-logo">
+                                                <img src="{{ organization.logo.url }}" alt="{{ organization.name }}" id="preview-logo" class="w-24 h-24 rounded-full">
+                                            </div>
+                                            <div class="profile-info mt-4">
+                                                <h4 id="preview-org-name" class="text-lg font-semibold">{{ organization.name }}</h4>
+                                                <p class="profile-role text-sm text-gray-500">@{{ organization.handle }}</p>
+                                                <p class="org-bio text-sm text-gray-600">{{ organization.bio }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="profile-actions mt-4">
+                                            <button type="button" class="btn btn-primary btn-upload" id="upload-logo-btn">
+                                                <i class="fas fa-upload"></i>
+                                                <span>Upload New Logo</span>
+                                            </button>
+                                            <button type="button" class="btn btn-outline btn-delete" id="delete-logo-btn">
+                                                <i class="fas fa-trash"></i>
+                                                <span>Remove</span>
+                                            </button>
+                                        </div>
+                                        <input type="file" id="edit-org-logo" name="org_logo" accept=".jpg,.jpeg,.png" style="display: none;">
+                                        <div class="error-message" id="logo-error"></div>
+                                    </div>
+
+                                    <!-- Form Fields Section -->
+                                    <div class="lg:col-span-1">
+                                        <!-- Organization Information -->
+                                        <div class="form-section mb-6">
+                                            <h4 class="section-title text-md font-semibold mb-4">
+                                                <i class="fas fa-building"></i>
+                                                Organization Information
+                                            </h4>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div class="form-group">
+                                                    <label for="org-name" class="block text-sm font-medium text-gray-700 mb-2">Organization Name *</label>
+                                                    <input type="text" id="org-name" name="org_name" required value="{{ organization.name }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                    <div class="error-message" id="org-name-error"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="org-handle" class="block text-sm font-medium text-gray-700 mb-2">Organization Handle *</label>
+                                                    <div class="input-with-at flex items-center">
+                                                        <span class="at-symbol px-3 py-2 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg">@</span>
+                                                        <input type="text" id="org-handle" name="org_handle" required value="{{ organization.handle }}" class="flex-1 px-3 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                    </div>
+                                                    <div class="error-message" id="handle-error"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                <div class="form-group">
+                                                    <label for="org-email" class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                                                    <input type="email" id="org-email" name="org_email" required value="{{ organization.email }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                    <div class="error-message" id="email-error"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="org-website" class="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                                                    <input type="url" id="org-website" name="org_website" placeholder="https://cssociety.edu" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group mt-4">
+                                                <label for="org-about" class="block text-sm font-medium text-gray-700 mb-2">About Organization</label>
+                                                <textarea id="org-about" name="org_about" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="4">{{ organization.about }}</textarea>
+                                                <div class="char-counter text-sm text-gray-500 mt-1">
+                                                    <span id="about-count">0</span>/500 characters
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Contact Information -->
+                                        <div class="form-section mb-6">
+                                            <h4 class="section-title text-md font-semibold mb-4">
+                                                <i class="fas fa-address-card"></i>
+                                                Contact Information
+                                            </h4>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div class="form-group">
+                                                    <label for="org-president" class="block text-sm font-medium text-gray-700 mb-2">President</label>
+                                                    <input type="text" id="org-president" name="org_president" value="Sarah Johnson" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="org-vp" class="block text-sm font-medium text-gray-700 mb-2">Vice President</label>
+                                                    <input type="text" id="org-vp" name="org_vp" value="Michael Chen" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                </div>
+                                            </div>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                <div class="form-group">
+                                                    <label for="org-phone" class="block text-sm font-medium text-gray-700 mb-2">Contact Number</label>
+                                                    <input type="tel" id="org-phone" name="org_phone" placeholder="+63 912 345 6789" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="org-founded" class="block text-sm font-medium text-gray-700 mb-2">Founded</label>
+                                                    <input type="month" id="org-founded" name="org_founded" value="2018-09" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Social Media -->
+                                        <div class="form-section mb-6">
+                                            <h4 class="section-title text-md font-semibold mb-4">
+                                                <i class="fas fa-hashtag"></i>
+                                                Social Media
+                                            </h4>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div class="form-group with-icon">
+                                                    <i class="fab fa-facebook"></i>
+                                                    <input type="url" id="org-facebook" name="org_facebook" placeholder="https://facebook.com/yourpage" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                </div>
+                                                <div class="form-group with-icon">
+                                                    <i class="fab fa-twitter"></i>
+                                                    <input type="url" id="org-twitter" name="org_twitter" placeholder="https://twitter.com/yourhandle" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                </div>
+                                            </div>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                <div class="form-group with-icon">
+                                                    <i class="fab fa-instagram"></i>
+                                                    <input type="url" id="org-instagram" name="org_instagram" placeholder="https://instagram.com/yourhandle" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                </div>
+                                                <div class="form-group with-icon">
+                                                    <i class="fab fa-linkedin"></i>
+                                                    <input type="url" id="org-linkedin" name="org_linkedin" placeholder="https://linkedin.com/company/yourcompany" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="profile-footer mt-6">
+                                    <div class="profile-actions-footer flex justify-end space-x-4">
+                                        <button type="button" class="btn btn-outline" id="cancel-org-btn">
+                                            <i class="fas fa-times"></i>
+                                            <span>Cancel</span>
+                                        </button>
+                                        <button type="submit" class="btn btn-primary" id="save-org-btn">
+                                            <i class="fas fa-save"></i>
+                                            <span>Save Changes</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Members Management Section -->
+                <div class="bg-white rounded-xl shadow-sm p-6" id="members-management" style="display: none;">
+                    <div class="space-y-6">
+                        <div class="mb-6">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-2">Members Management</h2>
+                            <p class="text-sm text-gray-500">Manage your organization members and their roles</p>
+                        </div>
+
+                        <div class="members-content">
+                            <div class="members-search mb-4">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" placeholder="Search members..." id="member-search" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                <div class="members-count text-sm text-gray-500 mt-2">
+                                    <span>5 members</span>
+                                </div>
+                            </div>
+
+                            <div class="members-table-container">
+                                <table class="members-table w-full">
+                                    <thead>
+                                        <tr class="border-b">
+                                            <th class="text-left py-2">Name</th>
+                                            <th class="text-left py-2">Email</th>
+                                            <th class="text-left py-2">Role</th>
+                                            <th class="text-left py-2">Date Joined</th>
+                                            <th class="text-left py-2">Status</th>
+                                            <th class="text-left py-2">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for member in organization.members.all %}
+                                        <tr class="border-b">
+                                            <td class="py-2">
+                                                <div class="member-info flex items-center space-x-3">
+                                                    <img src="https://ui-avatars.com/api/?name={{ member.get_full_name|urlencode }}&background=2563eb&color=fff" alt="{{ member.get_full_name }}" class="w-10 h-10 rounded-full">
+                                                    <div>
+                                                        <div class="member-name font-medium">{{ member.get_full_name }}</div>
+                                                        <div class="member-id text-sm text-gray-500">@{{ member.username }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-2">{{ member.email }}</td>
+                                            <td class="py-2"><span class="role-tag {% if member.is_admin %}admin{% else %}member{% endif %}">{{ member.get_role_display }}</span></td>
+                                            <td class="py-2">{{ member.date_joined|date:"M d, Y" }}</td>
+                                            <td class="py-2"><span class="status-badge active">Active</span></td>
+                                            <td class="py-2">
+                                                <button class="btn-icon" title="Edit Member"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon danger" title="Remove Member"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="pagination flex items-center justify-between mt-4">
+                                <span class="pagination-info text-sm text-gray-500">Page 1 of 1</span>
+                                <div class="flex space-x-2">
+                                    <button class="pagination-btn disabled">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <button class="pagination-btn">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Member Modal -->
+                <div class="modal fade" id="add-member-modal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Add New Member</h3>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="close-add-member-modal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form class="add-member-form" id="add-member-form">
+                                    <div class="form-group mb-4">
+                                        <label for="member-email" class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                                        <input type="email" class="form-control w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" id="member-email" name="member_email" required>
+                                    </div>
+                                    <div class="form-group mb-4">
+                                        <label for="member-role" class="block text-sm font-medium text-gray-700 mb-2">Role *</label>
+                                        <select class="form-control w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" id="member-role" name="member_role" required>
+                                            <option value="member">Member</option>
+                                            <option value="admin">Admin</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-actions text-right">
+                                        <button type="button" class="btn btn-outline" id="cancel-add-member">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Add Member</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="success-message" id="success-message" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Changes saved successfully!</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{% static 'accounts/organization.js' %}"></script>
+</body>
+</html>
