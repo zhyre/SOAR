@@ -1,15 +1,15 @@
 :root {
     /* Primary Colors */
-    --primary: #2563eb;
-    --primary-light: #3b82f6;
-    --primary-dark: #1d4ed8;
+    --primary: #07286e;
+    --primary-light: #172a49;
+    --primary-dark: #1e293b;;
     --primary-bg: #f0f7ff;
     
     /* Sidebar */
     --sidebar-bg: #0f172a;
     --sidebar-text: #f8fafc;
     --sidebar-hover: #1e293b;
-    --sidebar-active: #3b82f6;
+    --sidebar-active: #1e293b;
     
     /* Layout */
     --header-bg: #ffffff;
@@ -18,7 +18,7 @@
     --border-color: #e2e8f0;
     
     /* Text */
-    --text-primary: #1e293b;
+    --text-primary: #1e293b;;
     --text-secondary: #64748b;
     --text-muted: #94a3b8;
     
@@ -29,7 +29,7 @@
     --warning-light: #fef3c7;
     --danger: #ef4444;
     --danger-light: #fee2e2;
-    --info: #3b82f6;
+    --info:#1e293b;;
     --info-light: #dbeafe;
     
     /* Shadows */
@@ -1061,3 +1061,4 @@ dashboard-content h1 {
     from { transform: scale(1); opacity: 0.9; }
     to { transform: scale(1.1); opacity: 1; }
 }
+

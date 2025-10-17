@@ -1,8 +1,15 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import OrganizationViewSet, OrganizationMemberViewSet
+from . import views
 
+# API routes
 router = DefaultRouter()
-router.register(r'organizations', OrganizationViewSet)
-router.register(r'members', OrganizationMemberViewSet)
+# Uncomment these if you have the viewsets
+# router.register(r'organizations', views.OrganizationViewSet)
+# router.register(r'members', views.OrganizationMemberViewSet)
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('orgpage/', views.orgpage, name='orgpage'),
+    path('profile/', views.organization_profile, name='organization_profile'),
+    path('members/', views.membermanagement, name='membermanagement'),
+] + router.urls

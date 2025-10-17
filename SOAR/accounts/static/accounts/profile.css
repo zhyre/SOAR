@@ -2,17 +2,17 @@
 /* Based on existing SOAR color palette and design system */
 
 :root {
-    /* Primary Colors */
-    --primary: #2563eb;
+    /* Primary Colors - Dark Blue Theme */
+    --primary: #1e40af;
     --primary-light: #3b82f6;
-    --primary-dark: #1d4ed8;
-    --primary-bg: #f0f7ff;
+    --primary-dark: #1e3a8a;
+    --primary-bg: #eff6ff;
     
     /* Sidebar */
     --sidebar-bg: #0f172a;
     --sidebar-text: #f8fafc;
     --sidebar-hover: #1e293b;
-    --sidebar-active: #3b82f6;
+    --sidebar-active: #1e40af;
     
     /* Layout */
     --header-bg: #ffffff;

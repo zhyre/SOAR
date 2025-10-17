@@ -26,7 +26,7 @@ def index(request):
 def organization_page(request):
     """Display all organizations dynamically."""
     organizations = Organization.objects.all()
-    return render(request, 'accounts/organization.html', {'organizations': organizations})
+    return render(request, 'organization/orgpage.html', {'organizations': organizations})
 
 @login_required
 def profile(request):

@@ -51,3 +51,28 @@ def organization_page(request):
     """Render the organization page using the template under accounts/templates/accounts."""
     organizations = Organization.objects.all()
     return render(request, 'accounts/organization.html', {'organizations': organizations})
+
+@login_required
+def orgpage(request):
+    """Render the organization dashboard page."""
+    # Get organization data (you can modify this based on your needs)
+    organization = None
+    if Organization.objects.exists():
+        organization = Organization.objects.first()
+    return render(request, 'organization/orgpage.html', {'organization': organization})
+
+@login_required
+def organization_profile(request):
+    """Render the organization profile page."""
+    organization = None
+    if Organization.objects.exists():
+        organization = Organization.objects.first()
+    return render(request, 'organization/organization_profile.html', {'organization': organization})
+
+@login_required
+def membermanagement(request):
+    """Render the member management page."""
+    organization = None
+    if Organization.objects.exists():
+        organization = Organization.objects.first()
+    return render(request, 'organization/membermanagement.html', {'organization': organization})
