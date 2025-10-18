@@ -1,10 +1,28 @@
 from rest_framework import serializers
-from .models import Organization, OrganizationMember
+from .models import Organization, OrganizationMember, Program
+
+class ProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ["id", "abbreviation", "name"]
+
 
 class OrganizationSerializer(serializers.ModelSerializer):
+    allowed_programs = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Program.objects.all(), required=False
+    )
     class Meta:
         model = Organization
-        fields = ['id', 'name', 'description', 'profile_picture', 'adviser', 'date_created']
+        fields = [
+            'id',
+            'name',
+            'description',
+            'profile_picture',
+            'adviser',
+            'is_public',
+            'allowed_programs',
+            'date_created'
+        ]
 
     def validate_name(self, value):
         if not value.strip():
