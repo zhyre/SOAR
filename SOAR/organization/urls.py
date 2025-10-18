@@ -4,12 +4,12 @@ from . import views
 
 # API routes
 router = DefaultRouter()
-# Uncomment these if you have the viewsets
-# router.register(r'organizations', views.OrganizationViewSet)
-# router.register(r'members', views.OrganizationMemberViewSet)
+router.register(r'programs', views.ProgramViewSet, basename='program')
 
 urlpatterns = [
     path('orgpage/', views.orgpage, name='orgpage'),
     path('profile/', views.organization_profile, name='organization_profile'),
+     path('profile/edit/', views.organization_edit_profile, name='organization_editprofile'),
     path('members/', views.membermanagement, name='membermanagement'),
+    path('api/update-organization/', views.api_update_organization, name='api_update_organization'),
 ] + router.urls

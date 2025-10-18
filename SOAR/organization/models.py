@@ -1,47 +1,50 @@
 import uuid
 from django.db import models
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from PIL import Image
+from django.contrib.postgres.fields import ArrayField
+from SOAR.organization.validators import validate_image_file_type, validate_image_file_size
 
-def validate_image_file_type(value):
-    valid_formats = ("JPEG", "PNG")
-    try:
-        img = Image.open(value)
-        img_format = img.format.upper()
-        if img_format not in valid_formats:
-            raise ValidationError("Please upload a JPG or PNG image.")
-    except Exception:
-        raise ValidationError("Invalid image file.")
-    finally:
-        value.seek(0)
+class Program(models.Model):
+    abbreviation = models.CharField(max_length=10, unique=True)
+    name = models.CharField(max_length=100)
 
-def validate_image_file_size(value):
-    max_size = 10 * 1024 * 1024  # 10 MB
-    if value.size > max_size:
-        raise ValidationError("Image must be under 10 MB.")
+    def __str__(self):
+        return self.abbreviation
 
 class Organization(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
+    
     adviser = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         related_name="advised_organizations"
     )
+
     profile_picture = models.ImageField(
         upload_to='organization_profiles/',
         null=True,
         blank=True,
         validators=[validate_image_file_type, validate_image_file_size]
     )
+
+    is_public = models.BooleanField(
+        default=True,
+        help_text="If true, anyone can join this organization."
+    )
+
+    allowed_programs = models.ManyToManyField(
+            Program,
+            blank=True,
+            help_text="Select which programs can join this organization."
+        )
+
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
-
 
 ROLE_MEMBER = "member"
 ROLE_OFFICER = "officer"

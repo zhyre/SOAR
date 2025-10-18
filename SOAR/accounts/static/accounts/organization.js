@@ -1039,3 +1039,112 @@ function showSuccessMessage(message) {
         }, 3000);
     }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  const openModalBtn = document.getElementById('openModalBtn');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  const programChips = document.getElementById('programChips');
+  const displayChips = document.getElementById('displayChips');
+  const programsChecklist = document.getElementById('programsChecklist');
+  const allowedProgramsHidden = document.getElementById('allowedProgramsHidden');
+  const isPublicSelect = document.getElementById('is-public');
+  const programsHelperText = document.getElementById('programsHelperText');
+
+  if (!openModalBtn || !modalOverlay || !programsChecklist) return;
+
+  // Modal control
+  function openModal() {
+    modalOverlay.classList.remove('hidden');
+    modalOverlay.classList.add('flex');
+    renderModalChips();
+  }
+
+  function closeModal() {
+    modalOverlay.classList.add('hidden');
+    modalOverlay.classList.remove('flex');
+  }
+
+  function getChecked() {
+    return Array.from(programsChecklist.querySelectorAll('.program-check:checked'))
+      .map(cb => ({ id: cb.value, name: cb.parentElement.querySelector('span')?.textContent || '' }));
+  }
+
+  function renderModalChips() {
+    if (!programChips) return;
+    programChips.innerHTML = '';
+    getChecked().forEach(({ id, name }) => {
+      const chip = document.createElement('span');
+      chip.className = 'inline-flex items-center bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full';
+      chip.innerHTML = `${name} <button type="button" class="ml-1" data-remove-id="${id}">×</button>`;
+      programChips.appendChild(chip);
+    });
+    // Remove handlers
+    programChips.querySelectorAll('[data-remove-id]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-remove-id');
+        const cb = programsChecklist.querySelector(`.program-check[value="${id}"]`);
+        if (cb) cb.checked = false;
+        renderModalChips();
+      });
+    });
+  }
+
+  // Live update chips when checking/unchecking
+  programsChecklist.addEventListener('change', (e) => {
+    if (e.target.classList.contains('program-check')) {
+      renderModalChips();
+    }
+  });
+
+  // Save: update visible chips and hidden inputs for form submission
+  saveBtn?.addEventListener('click', () => {
+    if (displayChips) {
+      displayChips.innerHTML = '';
+      getChecked().forEach(({ name }) => {
+        const chip = document.createElement('span');
+        chip.className = 'inline-flex items-center bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-full';
+        chip.textContent = name;
+        displayChips.appendChild(chip);
+      });
+    }
+    if (allowedProgramsHidden) {
+      allowedProgramsHidden.innerHTML = '';
+      getChecked().forEach(({ id }) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'allowed_programs';
+        input.value = id;
+        allowedProgramsHidden.appendChild(input);
+      });
+    }
+    closeModal();
+  });
+
+  cancelBtn?.addEventListener('click', closeModal);
+  closeModalBtn?.addEventListener('click', closeModal);
+  openModalBtn?.addEventListener('click', openModal);
+
+  // Toggle add/edit availability based on Visibility (Public/Private)
+  if (isPublicSelect && openModalBtn) {
+    const updateProgramsControls = () => {
+      const isPublic = (isPublicSelect.value === 'true');
+      openModalBtn.disabled = isPublic;
+      if (programsHelperText) {
+        programsHelperText.textContent = isPublic
+          ? 'Visibility is Public. Set to Private to manage affiliated programs.'
+          : 'Select which programs are allowed to join when visibility is Private.';
+      }
+      // If it became public while modal is open, close it
+      if (isPublic && !modalOverlay.classList.contains('hidden')) {
+        closeModal();
+      }
+    };
+    // Initialize and listen for changes
+    updateProgramsControls();
+    isPublicSelect.addEventListener('change', updateProgramsControls);
+  }
+});
+
