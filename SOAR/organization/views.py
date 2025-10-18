@@ -1,27 +1,30 @@
-from django.shortcuts import render
-from rest_framework import viewsets
+from django.shortcuts import render, get_object_or_404, redirect
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+from django.http import JsonResponse
+import json
 from .models import Organization, OrganizationMember, Program
 from .serializers import OrganizationSerializer, OrganizationMemberSerializer, ProgramSerializer
 from .permissions import IsOrgOfficerOrAdviser
 
-from django.shortcuts import render, get_object_or_404
 
 def organization_detail(request, org_id):
     organization = get_object_or_404(Organization, id=org_id)
-    programs = Program.objects.all()  # ← this must be plural
-
+    programs = Program.objects.all()
     return render(request, 'organization_profile.html', {
         'organization': organization,
-        'programs': programs,  # ← what the template loops over
+        'programs': programs,
     })
 
+
+# ==============================
+# ORGANIZATION VIEWSET
+# ==============================
 class OrganizationViewSet(viewsets.ModelViewSet):
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
@@ -41,64 +44,109 @@ class OrganizationViewSet(viewsets.ModelViewSet):
         serializer = OrganizationMemberSerializer(members, many=True)
         return Response(serializer.data)
 
+
+# ==============================
+# PROGRAM VIEWSET
+# ==============================
 class ProgramViewSet(viewsets.ModelViewSet):
     queryset = Program.objects.all()
     serializer_class = ProgramSerializer
     permission_classes = [IsAuthenticated]
 
+
+# ==============================
+# ORGANIZATION MEMBER VIEWSET
+# ==============================
 class OrganizationMemberViewSet(viewsets.ModelViewSet):
     queryset = OrganizationMember.objects.select_related('student', 'organization').all()
     serializer_class = OrganizationMemberSerializer
     permission_classes = [IsAuthenticated]
 
+    # ✅ Promote Member
     @action(detail=True, methods=['post'])
     def promote(self, request, pk=None):
+        """Promote a member (Member → Officer → Leader).
+        Only Leaders or Admins can perform this action.
+        """
         member = self.get_object()
-        member.promote()
-        return Response({'status': 'promoted', 'new_role': member.role})
+        promoter = request.user
+
+        try:
+            member.promote(promoter=promoter)
+            return Response({
+                'status': 'success',
+                'message': f'{member.student.username} has been promoted to {member.role}.',
+                'new_role': member.role
+            }, status=status.HTTP_200_OK)
+
+        except PermissionError as e:
+            return Response({'error': str(e)}, status=status.HTTP_403_FORBIDDEN)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': f'Unexpected error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # ✅ NEW: Demote Member
+    @action(detail=True, methods=['post'])
+    def demote(self, request, pk=None):
+        """Demote a member (Leader → Officer → Member).
+        Only Leaders or Admins can perform this action.
+        """
+        member = self.get_object()
+        demoter = request.user
+
+        try:
+            member.demote(demoter=demoter)
+            return Response({
+                'status': 'success',
+                'message': f'{member.student.username} has been demoted to {member.role}.',
+                'new_role': member.role
+            }, status=status.HTTP_200_OK)
+
+        except PermissionError as e:
+            return Response({'error': str(e)}, status=status.HTTP_403_FORBIDDEN)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': f'Unexpected error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.delete()
         return Response({'status': 'removed'})
 
+
+# ==============================
+# PAGE VIEWS (Templates)
+# ==============================
 @login_required
 def organization_page(request):
-    """Render the organization page using the template under accounts/templates/accounts."""
     organizations = Organization.objects.all()
     return render(request, 'accounts/organization.html', {'organizations': organizations})
 
+
 @login_required
 def orgpage(request):
-    """Render the organization dashboard page."""
-    # Get organization data (you can modify this based on your needs)
-    organization = None
-    if Organization.objects.exists():
-        organization = Organization.objects.first()
+    organization = Organization.objects.first() if Organization.objects.exists() else None
     return render(request, 'organization/orgpage.html', {'organization': organization})
 
-def organization_profile(request):
-    """Render and update the general organization profile page."""
-    organization = None
-    if Organization.objects.exists():
-        organization = Organization.objects.first()  # Use the first org for now
 
+@login_required
+def organization_profile(request):
+    organization = Organization.objects.first() if Organization.objects.exists() else None
     programs = Program.objects.all()
 
     if request.method == 'POST' and organization:
-        # Basic info
         name = (request.POST.get('org_name') or organization.name).strip()
         about = (request.POST.get('org_about') or organization.description or '').strip()
         is_public_val = request.POST.get('is_public')
         is_public = True if str(is_public_val).lower() in ('true', '1', 'on', 'yes') else False
 
-        # Save updates
         organization.name = name
         organization.description = about
         organization.is_public = is_public
         organization.save()
 
-        # Handle allowed programs only if private
         if not is_public:
             allowed_ids = request.POST.getlist('allowed_programs')
             selected_programs = Program.objects.filter(id__in=allowed_ids)
@@ -106,10 +154,7 @@ def organization_profile(request):
         else:
             organization.allowed_programs.clear()
 
-        # Optional: add success message
         messages.success(request, "Organization profile updated successfully!")
-
-        # Redirect to avoid re-submission
         return redirect('organization_profile')
 
     return render(request, 'organization/organization_profile.html', {
@@ -117,27 +162,23 @@ def organization_profile(request):
         'programs': programs,
     })
 
+
 @login_required
 def organization_edit_profile(request):
-    """Edit organization profile page."""
-    # Get the first organization (or None if none exist)
     organization = Organization.objects.first()
     programs = Program.objects.all()
 
     if request.method == 'POST' and organization:
-        # Collect and sanitize form fields
         name = (request.POST.get('org_name') or organization.name).strip()
         about = (request.POST.get('org_about') or organization.description or '').strip()
         is_public_val = request.POST.get('is_public')
         is_public = str(is_public_val).lower() in ('true', '1', 'on', 'yes')
 
-        # Update organization fields
         organization.name = name
         organization.description = about
         organization.is_public = is_public
         organization.save()
 
-        # Update allowed programs if private
         if not is_public:
             allowed_ids = request.POST.getlist('allowed_programs')
             allowed_programs = Program.objects.filter(id__in=allowed_ids)
@@ -152,14 +193,30 @@ def organization_edit_profile(request):
         'organization': organization,
         'programs': programs,
     })
+
+
 @login_required
 def membermanagement(request):
     """Render the member management page."""
-    organization = None
-    if Organization.objects.exists():
-        organization = Organization.objects.first()
-    return render(request, 'organization/membermanagement.html', {'organization': organization})
-  # Only if not using CSRF token in JS
+    organization = Organization.objects.first()
+    members = OrganizationMember.objects.select_related('student').filter(organization=organization)
+    
+    # determine user role (depends on how your roles are stored)
+    user_role = None
+    try:
+        org_member = OrganizationMember.objects.get(student=request.user, organization=organization)
+        user_role = org_member.role
+    except OrganizationMember.DoesNotExist:
+        user_role = "GUEST"
+
+    return render(request, 'organization/membermanagement.html', {
+        'organization': organization,
+        'members': members,
+        'user_role': user_role,
+    })
+
+
+
 @login_required
 def api_update_organization(request):
     if request.method != 'POST':
@@ -183,3 +240,42 @@ def api_update_organization(request):
         organization.allowed_programs.clear()
 
     return JsonResponse({'message': 'Organization updated successfully'})
+
+@login_required
+def demote_member(request, member_id):
+    """Demote a member (Leader → Officer → Member). Only Leaders or Admins can perform this."""
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        member = OrganizationMember.objects.get(id=member_id)
+        promoter = request.user  # the one performing the action
+
+        # Check permissions
+        if not (promoter.is_superuser or promoter.is_staff):
+            promoter_record = OrganizationMember.objects.filter(
+                organization=member.organization,
+                student=promoter
+            ).first()
+            if not promoter_record or promoter_record.role != "Leader":
+                return JsonResponse({"error": "Only leaders or admins can demote members."}, status=403)
+
+        # Demotion logic
+        if member.role == "Leader":
+            member.role = "Officer"
+        elif member.role == "Officer":
+            member.role = "Member"
+        else:
+            return JsonResponse({"error": "Cannot demote further; already a Member."}, status=400)
+
+        member.save()
+        return JsonResponse({
+            "status": "success",
+            "message": f"{member.student.username} has been demoted to {member.role}.",
+            "new_role": member.role
+        })
+
+    except OrganizationMember.DoesNotExist:
+        return JsonResponse({"error": "Member not found."}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

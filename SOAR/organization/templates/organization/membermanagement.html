@@ -112,7 +112,7 @@
         }
     </style>
 </head>
-<body class="organization-page">
+<body class="organization-page" data-user-role="{{ user_role }}">
     <!-- Overlay for mobile sidebar -->
     <div class="overlay"></div>
     
@@ -284,28 +284,28 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr class="member-row" data-member-id="2" data-name="Jane Smith" data-email="jane.smith@example.com" data-role="member">
+                                    <tr class="member-row" data-member-id="2" data-name="Jane Smith" data-email="janesmith@example.com" data-role="leader">
                                         <td>
                                             <div class="member-info">
                                                 <div class="member-avatar">JS</div>
                                                 <div class="member-details">
                                                     <div class="member-name">Jane Smith</div>
-                                                    <div class="member-email">jane.smith@example.com</div>
+                                                    <div class="member-email">janesmith@example.com</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="role-tag member">Member</span>
+                                            <span class="role-tag leader">Leader</span>
                                         </td>
-                                        <td>2023-02-20</td>
+                                        <td>2023-01-15</td>
                                         <td>
                                             <span class="status-badge active">Active</span>
                                         </td>
                                         <td class="actions">
-                                            <button class="btn-icon" title="Promote to Admin" onclick="toggleMemberRole('2', 'member')">
-                                                <i class="fas fa-arrow-up"></i>
+                                            <button class="btn-icon" title="Demote to Officer" onclick="toggleMemberRole('1', 'leader')">
+                                                <i class="fas fa-arrow-down"></i>
                                             </button>
-                                            <button class="btn-icon danger" title="Remove Member" onclick="confirmRemoveMember('2', 'Jane Smith')">
+                                            <button class="btn-icon danger" title="Remove Member" onclick="confirmRemoveMember('1', 'John Doe')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
@@ -332,6 +332,36 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div id="add-member-modal" class="simple-modal">
+        <div class="simple-modal-content">
+            <div class="simple-modal-header">
+                <h3>Add New Member</h3>
+                <button id="close-add-member-modal" class="close-btn">&times;</button>
+            </div>
+            <form id="add-member-form">
+                <div class="form-group">
+                    <label for="member-name">Member Name</label>
+                    <input type="text" id="member-name" name="name" placeholder="Enter member's name">
+                    <div id="name-error" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="member-role">Role</label>
+                    <select id="member-role" name="role">
+                        <option value="" disabled selected>Select a role</option>
+                        <option value="Member">Member</option>
+                        <option value="Officer">Officer</option>
+                    </select>
+                    <div id="role-error" class="error-message"></div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Member</button>
+                    <button type="button" id="cancel-add-member" class="btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
 
 
@@ -546,15 +576,15 @@
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
                     const searchTerm = this.value.toLowerCase();
-                    const memberRows = document.querySelectorAll('.member-row');
+                    const memberRows = document.querySelectorAll('#members-tbody .member-row');
                     
                     memberRows.forEach(row => {
                         const name = row.getAttribute('data-name').toLowerCase();
                         const email = row.getAttribute('data-email').toLowerCase();
                         const role = row.getAttribute('data-role').toLowerCase();
                         
-                        if (name.includes(searchTerm) || 
-                            email.includes(searchTerm) || 
+                        if (name.includes(searchTerm) ||
+                            email.includes(searchTerm) ||
                             role.includes(searchTerm)) {
                             row.style.display = '';
                         } else {
@@ -634,16 +664,16 @@
                                 <span class="status-badge active">Active</span>
                             </td>
                             <td class="actions">
-                                <button class="btn-icon" title="${role === 'admin' ? 'Demote to Member' : 'Promote to Admin'}" 
-                                        onclick="toggleMemberRole('${newMemberId}', '${role}')">
-                                    <i class="fas fa-${role === 'admin' ? 'arrow-down' : 'arrow-up'}"></i>
-                                </button>
-                                <button class="btn-icon danger" title="Remove Member" 
-                                        onclick="confirmRemoveMember('${newMemberId}', '${name.replace(/'/g, '\'')}')">
+                                ${['leader','admin'].includes(document.body.getAttribute('data-user-role').toLowerCase())
+                                    ? `<button class="btn btn-success btn-sm promote-btn" onclick="toggleMemberRole('${newMemberId}', '${role}')">Promote</button>
+                                    <button class="btn btn-warning btn-sm demote-btn" onclick="toggleMemberRole('${newMemberId}', '${role}')">Demote</button>`
+                                    : `<span class="text-muted">No actions</span>`}
+                                <button class="btn-icon danger" title="Remove Member" onclick="confirmRemoveMember('${newMemberId}', '${name.replace(/'/g, "\\'")}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         `;
+
                         
                         // Add the new row to the table
                         const tbody = document.querySelector('#members-tbody');
@@ -680,37 +710,52 @@
 
         // Toggle member role (promote/demote)
         function toggleMemberRole(memberId, currentRole) {
-            const newRole = currentRole === 'admin' ? 'member' : 'admin';
-            const roleText = newRole === 'admin' ? 'promote to Admin' : 'demote to Member';
-            
-            if (confirm(`Are you sure you want to ${roleText}?`)) {
-                // Here you would typically make an AJAX call to update the role
-                const memberRow = document.querySelector(`.member-row[data-member-id="${memberId}"]`);
-                if (memberRow) {
-                    // Update data attribute
-                    memberRow.setAttribute('data-role', newRole);
-                    
-                    // Update role display
-                    const roleElement = memberRow.querySelector('.role-tag');
-                    if (roleElement) {
-                        roleElement.textContent = newRole === 'admin' ? 'Admin' : 'Member';
-                        roleElement.className = 'role-tag ' + newRole;
-                    }
-                    
-                    // Update toggle button
-                    const toggleBtn = memberRow.querySelector('.btn-icon:not(.danger)');
-                    if (toggleBtn) {
-                        toggleBtn.title = newRole === 'admin' ? 'Demote to Member' : 'Promote to Admin';
-                        const icon = toggleBtn.querySelector('i');
-                        if (icon) {
-                            icon.className = 'fas fa-' + (newRole === 'admin' ? 'arrow-down' : 'arrow-up');
-                        }
-                    }
-                    
-                    showSuccessMessage(`Member successfully ${newRole === 'admin' ? 'promoted to Admin' : 'demoted to Member'}`);
+            const currentUserRole = document.body.getAttribute('data-user-role');
+
+            // ✅ Only allow leaders and admins to promote/demote
+            if (currentUserRole !== 'leader' && currentUserRole !== 'admin') {
+                alert("You don't have permission to promote or demote members.");
+                return;
+            }
+
+            const memberRow = document.querySelector(`.member-row[data-member-id="${memberId}"]`);
+            const roleElement = memberRow.querySelector('.role-tag');
+            const toggleBtn = memberRow.querySelector('.btn-icon:not(.danger)');
+            const icon = toggleBtn.querySelector('i');
+
+            const roleOrder = ['member', 'officer', 'leader'];
+            let action = '';
+            let newRole = currentRole;
+
+            // Determine action
+            if (currentRole === 'member') {
+                newRole = 'officer';
+                action = 'promote';
+            } else if (currentRole === 'officer') {
+                const promoteFurther = confirm('Promote this Officer to Leader? Click Cancel to demote to Member.');
+                if (promoteFurther) {
+                    newRole = 'leader';
+                    action = 'promote';
+                } else {
+                    newRole = 'member';
+                    action = 'demote';
                 }
+            } else if (currentRole === 'leader') {
+                newRole = 'officer';
+                action = 'demote';
+            }
+
+            if (confirm(`Are you sure you want to ${action} this ${currentRole} to ${newRole}?`)) {
+                memberRow.setAttribute('data-role', newRole);
+                roleElement.textContent = newRole.charAt(0).toUpperCase() + newRole.slice(1);
+                roleElement.className = 'role-tag ' + newRole;
+                toggleBtn.title = newRole === 'leader' ? 'Demote to Officer' : 'Promote/Demote';
+                icon.className = 'fas fa-' + (action === 'promote' ? 'arrow-up' : 'arrow-down');
+                showSuccessMessage(`Member ${action}d to ${newRole.charAt(0).toUpperCase() + newRole.slice(1)}`);
             }
         }
+
+
 
         // Confirm member removal
         function confirmRemoveMember(memberId, memberName) {

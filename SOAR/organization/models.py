@@ -69,10 +69,57 @@ class OrganizationMember(models.Model):
     def __str__(self):
         return f"{self.student.username} - {self.organization.name} ({self.role})"
 
-    def promote(self):
-        if self.role == ROLE_MEMBER:
-            self.role = ROLE_OFFICER
-            self.save()
-        elif self.role == ROLE_OFFICER:
-            self.role = ROLE_LEADER
-            self.save()
+    def promote(self, promoter=None):
+        if not promoter:
+            raise PermissionError("No promoter specified.")
+
+        # Allow admins (superuser or staff)
+        if promoter.is_superuser or promoter.is_staff:
+            allowed = True
+        else:
+            promoter_record = OrganizationMember.objects.filter(
+                organization=self.organization,
+                student=promoter
+            ).first()
+            allowed = promoter_record and promoter_record.role == "Leader"
+
+        if not allowed:
+            raise PermissionError("Only leaders or admins can promote members.")
+
+        # Promotion logic
+        if self.role == "Member":
+            self.role = "Officer"
+        elif self.role == "Officer":
+            self.role = "Leader"
+        else:
+            raise ValueError("Cannot promote further; already a Leader.")
+
+        self.save()
+
+    def demote(self, demoter=None):
+        if not demoter:
+            raise PermissionError("No demoter specified.")
+
+        # Allow admins (superuser or staff)
+        if demoter.is_superuser or demoter.is_staff:
+            allowed = True
+        else:
+            demoter_record = OrganizationMember.objects.filter(
+                organization=self.organization,
+                student=demoter
+            ).first()
+            allowed = demoter_record and demoter_record.role == "Leader"
+
+        if not allowed:
+            raise PermissionError("Only leaders or admins can demote members.")
+
+        # Demotion logic
+        if self.role == "Leader":
+            self.role = "Officer"
+        elif self.role == "Officer":
+            self.role = "Member"
+        else:
+            raise ValueError("Cannot demote further; already a Member.")
+
+        self.save()
+
