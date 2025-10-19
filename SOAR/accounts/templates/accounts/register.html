@@ -110,7 +110,7 @@
             </form>
             {% if messages %}
                 {% for message in messages %}
-                    <div class="message error">{{ message }}</div>
+                    <div class="message {% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
             <div style="margin-top: 20px; text-align: center;">

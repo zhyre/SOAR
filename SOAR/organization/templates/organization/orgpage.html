@@ -11,9 +11,41 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
         }
         .sidebar {
             transition: transform 0.3s ease, width 0.3s ease;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
         }
         .sidebar.collapsed {
             width: 80px;
@@ -23,6 +55,16 @@
         }
         .sidebar.collapsed .logo-text {
             display: none;
+        }
+        
+        /* Logo animation */
+        @keyframes rocketFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        
+        .rocket-animate:hover {
+            animation: rocketFloat 2s ease-in-out infinite;
         }
         @media (max-width: 768px) {
             .sidebar {
@@ -46,10 +88,10 @@
             <div class="p-6">
                 <div class="flex items-center justify-between mb-8">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                            <i class="fas fa-graduation-cap text-blue-600 text-xl"></i>
+                        <div class="flex items-center justify-center">
+                            <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR Logo" class="h-8 w-auto">
                         </div>
-                        <span class="logo-text text-xl font-bold">SOAR</span>
+                        <span class="logo-text text-xl font-bold text-white"></span>
                     </div>
                     <button id="sidebarToggle" class="hidden md:block p-2 hover:bg-blue-500 rounded-lg transition">
                         <i class="fas fa-bars"></i>
@@ -164,40 +206,121 @@
                 </div>
             </header>
 
+            <!-- Organization Header with Photo -->
+            <div class="bg-white shadow-sm">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <div class="flex flex-col md:flex-row items-center md:items-end space-y-4 md:space-y-0 md:space-x-6">
+                        <!-- Organization Photo -->
+                        <div class="relative group">
+                            <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                                <img src="{% static 'organization/images/org-default.png' %}" 
+                                     alt="{{ organization.name }} Logo" 
+                                     class="w-full h-full object-cover"
+                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ organization.name|urlencode }}&background=2563eb&color=fff&size=256'">
+                            </div>
+                            <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="p-2 bg-white bg-opacity-80 rounded-full text-blue-600 hover:bg-white">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Organization Info -->
+                        <div class="text-center md:text-left">
+                            <h1 class="text-3xl font-bold text-gray-900">{{ organization.name|default:"Organization Name" }}</h1>
+                            <p class="mt-2 text-gray-600">{{ organization.description|default:"Organization description goes here" }}</p>
+                            <div class="mt-3 flex flex-wrap justify-center md:justify-start gap-4">
+                                <span class="inline-flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-users mr-1.5"></i>
+                                    <span>{{ organization.member_count|default:"128" }} Members</span>
+                                </span>
+                                <span class="inline-flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-calendar-alt mr-1.5"></i>
+                                    <span>Joined {{ organization.created_at|date:"F Y"|default:"2023" }}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Content Area -->
-            <main class="flex-1 overflow-y-auto p-6">
+            <main class="flex-1 overflow-y-auto p-4 md:p-8">
                 <!-- Create Post Card -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <div class="flex items-center space-x-4">
+                <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-gray-100">
+                    <div class="flex items-start space-x-4">
                         <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" 
                              alt="{{ user.username }}" 
-                             class="w-12 h-12 rounded-full">
-                        <button class="flex-1 text-left px-4 py-3 bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 transition">
-                            What's on your mind?
+                             class="w-12 h-12 rounded-full border-2 border-blue-100">
+                        <div class="flex-1">
+                            <div class="relative">
+                                <textarea class="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition" 
+                                          rows="3" 
+                                          placeholder="What's new with your organization, {{ user.username }}?"></textarea>
+                                <div class="flex items-center justify-between mt-3">
+                                    <div class="flex space-x-2">
+                                        <button class="p-2 text-gray-500 hover:bg-blue-50 rounded-full transition">
+                                            <i class="fas fa-image text-blue-500"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-500 hover:bg-blue-50 rounded-full transition">
+                                            <i class="fas fa-video text-green-500"></i>
+                                        </button>
+                                        <button class="p-2 text-gray-500 hover:bg-blue-50 rounded-full transition">
+                                            <i class="fas fa-calendar-alt text-purple-500"></i>
+                                        </button>
+                                    </div>
+                                    <button class="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:opacity-90 transition-all transform hover:scale-[1.02] font-medium shadow-md">
+                                        Post
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feed Header -->
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Latest Updates</h2>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
+                            <i class="fas fa-sync-alt mr-1"></i> Newest
                         </button>
-                        <button class="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition font-medium">
-                            Post
+                        <button class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition">
+                            <i class="fas fa-sliders-h"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Feed Posts -->
                 <div class="space-y-6">
-                    <!-- Post Card 1 -->
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="p-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center space-x-3">
-                                    <img src="https://ui-avatars.com/api/?name=Sarah+Johnson&background=10b981&color=fff" 
-                                         alt="Sarah Johnson" 
-                                         class="w-12 h-12 rounded-full">
-                                    <div>
-                                        <h3 class="font-semibold text-gray-800">Sarah Johnson</h3>
-                                        <p class="text-sm text-gray-500">President • 2 hours ago</p>
+                    <!-- Pinned Post -->
+                    <div class="relative group">
+                        <div class="absolute -left-2 top-0 bottom-0 w-1 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition"></div>
+                        <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-blue-50 transform transition-all duration-300 hover:shadow-md">
+                            <div class="p-6">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-start space-x-3">
+                                        <img src="https://ui-avatars.com/api/?name=Sarah+Johnson&background=10b981&color=fff" 
+                                             alt="Sarah Johnson" 
+                                             class="w-12 h-12 rounded-xl border-2 border-white shadow-sm">
+                                        <div>
+                                            <div class="flex items-center space-x-2">
+                                                <h3 class="font-semibold text-gray-800">Sarah Johnson</h3>
+                                                <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded-full">
+                                                    <i class="fas fa-thumbtack text-xs mr-1"></i> Pinned
+                                                </span>
+                                            </div>
+                                            <p class="text-sm text-gray-500 flex items-center">
+                                                <span>President</span>
+                                                <span class="mx-1">•</span>
+                                                <span>2h ago</span>
+                                                <span class="mx-1">•</span>
+                                                <i class="fas fa-globe-americas text-xs"></i>
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <button class="p-2 hover:bg-gray-100 rounded-lg">
-                                    <i class="fas fa-ellipsis-h text-gray-500"></i>
+                                    <button class="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition">
+                                        <i class="fas fa-ellipsis-h"></i>
                                 </button>
                             </div>
                             <p class="text-gray-700 mb-4">
