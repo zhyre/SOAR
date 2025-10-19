@@ -9,6 +9,7 @@ from decouple import config
 from django.core.exceptions import ImproperlyConfigured
 from SOAR.organization.models import Organization
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.http import require_http_methods
 
 @login_required
 def index(request):
@@ -97,6 +98,10 @@ def register(request):
         form = StudentRegistrationForm()
 
     return render(request, "accounts/register.html", {"form": form})
+
+def landing_page(request):
+    """Landing page view that shows for all users."""
+    return render(request, 'accounts/landing.html')
 
 def login_view(request):
     if request.user.is_authenticated:

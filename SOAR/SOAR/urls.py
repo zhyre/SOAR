@@ -16,15 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
 from django.conf import settings
 from django.conf.urls.static import static
+from SOAR.accounts.views import landing_page
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("accounts/", include("SOAR.accounts.urls")),
     path("organization/", include("SOAR.organization.urls")),
-    path("", lambda request: redirect("accounts/")),
+    path("", landing_page, name='home'),
 ]
 
 if settings.DEBUG:
