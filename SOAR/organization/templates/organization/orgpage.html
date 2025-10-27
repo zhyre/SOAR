@@ -247,35 +247,38 @@
             <!-- Content Area -->
             <main class="flex-1 overflow-y-auto p-4 md:p-8">
                 <!-- Create Post Card -->
+                <!-- Replace the existing post form with this -->
                 <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-gray-100">
-                    <div class="flex items-start space-x-4">
-                        <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" 
-                             alt="{{ user.username }}" 
-                             class="w-12 h-12 rounded-full border-2 border-blue-100">
-                        <div class="flex-1">
-                            <div class="relative">
-                                <textarea class="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition" 
-                                          rows="3" 
-                                          placeholder="What's new with your organization, {{ user.username }}?"></textarea>
-                                <div class="flex items-center justify-between mt-3">
-                                    <div class="flex space-x-2">
-                                        <button class="p-2 text-gray-500 hover:bg-blue-50 rounded-full transition">
-                                            <i class="fas fa-image text-blue-500"></i>
-                                        </button>
-                                        <button class="p-2 text-gray-500 hover:bg-blue-50 rounded-full transition">
-                                            <i class="fas fa-video text-green-500"></i>
-                                        </button>
-                                        <button class="p-2 text-gray-500 hover:bg-blue-50 rounded-full transition">
-                                            <i class="fas fa-calendar-alt text-purple-500"></i>
-                                        </button>
-                                    </div>
-                                    <button class="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:opacity-90 transition-all transform hover:scale-[1.02] font-medium shadow-md">
-                                        Post
-                                    </button>
-                                </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Create New Activity</h3>
+                    <form id="activityForm" class="space-y-4">
+                        <div class="form-group">
+                            <label for="activityTitle" class="block text-sm font-medium text-gray-700 mb-1">Activity Title *</label>
+                            <input type="text" id="activityTitle" name="title" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Enter activity title" required>
+                            <div id="titleError" class="text-red-500 text-sm mt-1 hidden">Title is required</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="activityDescription" class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                            <textarea id="activityDescription" name="description" rows="3"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                    placeholder="Describe the activity (max 500 characters)" maxlength="500" required></textarea>
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <div id="descriptionError" class="text-red-500 hidden">Description is required</div>
+                                <span id="charCount">0/500</span>
                             </div>
                         </div>
-                    </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:opacity-90 transition-all transform hover:scale-[1.02] font-medium shadow-md">
+                                Post Activity
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Add this where you want the activities to appear -->
+                <div id="activitiesList" class="space-y-6">
+                    <!-- Activities will be dynamically inserted here -->
                 </div>
 
                 <!-- Feed Header -->
