@@ -1866,3 +1866,95 @@ html, body {
         gap: 1rem;
     }
 }
+/* Activity Card Styles */
+.activity-card {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.activity-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.activity-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.activity-content {
+    padding: 1.5rem;
+}
+
+.activity-actions {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+.like-btn, .comment-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    transition: all 0.2s;
+}
+
+.like-btn:hover, .comment-btn:hover {
+    background-color: #f9fafb;
+}
+
+.like-btn.liked {
+    color: #ef4444;
+}
+
+.comment-section {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #f3f4f6;
+    display: none;
+}
+
+.comment-input {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.comment-input input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.comment-list {
+    margin-top: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.comment-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.comment-author {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #111827;
+}
+
+.comment-text {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+}

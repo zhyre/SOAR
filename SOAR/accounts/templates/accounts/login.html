@@ -33,6 +33,9 @@
                 </p>
             {% endfor %}
             <button class="btn-primary" type="submit">Login</button>
+            <a href="{% url 'home' %}" class="btn-secondary" style="display: block; margin-top: 10px; text-align: center; text-decoration: none;">
+                Back to Dashboard
+            </a>
         </form>
         {% if messages %}
             {% for message in messages %}
