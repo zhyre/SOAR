@@ -8,19 +8,16 @@
 <body>
     <h1>Members of {{ organization.name }}</h1>
     
-    <!-- Search form at the top -->
     <form method="GET" action="{% url 'members_list' organization.id %}">
         <input type="search" name="search" value="{{ search_query }}" placeholder="Search by name or email">
         <button type="submit">Search</button>
     </form>
     
-    <!-- Members list -->
     <ul>
         {% for member in members %}
             <li>
                 {{ member.name }} - {{ member.email }} - Role: {{ member.role.name }}
                 
-                <!-- Promote form/button, only visible to Admins/Officers -->
                 {% if user.is_authenticated %}
                     {% with current_member=user.member_set.filter(organization=organization).first %}
                         {% if current_member and current_member.role.name in 'Admin,Officer' %}

@@ -7,7 +7,7 @@ from .models import User
 from supabase import create_client
 from decouple import config
 from django.core.exceptions import ImproperlyConfigured
-from SOAR.organization.models import Organization
+from organization.models import Organization
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_http_methods
 
