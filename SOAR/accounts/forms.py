@@ -154,3 +154,19 @@ class CustomLoginForm(AuthenticationForm):
         if not username or not password:
             raise ValidationError('Both username and password are required.')
         return cleaned
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = [
+            'first_name', 'last_name', 'email', 'student_id', 'course', 'year_level', 'profile_picture'
+        ]
+        widgets = {
+            'profile_picture': forms.FileInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if not isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'placeholder': ' '})

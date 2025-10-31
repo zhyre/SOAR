@@ -170,7 +170,7 @@
                         </div>
                         <div class="sidebar-text">
                             <h3 class="font-semibold text-sm">{{ organization.name|default:"Computer Science Society" }}</h3>
-                            <p class="text-blue-200 text-xs">128 members</p>
+                            <p class="text-blue-200 text-xs">{{ organization.members.count }} member{{ organization.members.count|pluralize }}</p>
                         </div>
                     </div>
                 </div>
@@ -234,6 +234,7 @@
                 </div>
 
                     <div class="bg-white rounded-xl shadow-sm p-6 mb-6 flex items-center justify-between">
+                        {% if user_role in "admin,leader" %}
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800">Add Member</h3>
                             <p class="text-sm text-gray-500">Search affiliated users and assign a role</p>
@@ -242,12 +243,13 @@
                             <i class="fas fa-user-plus"></i>
                             <span>Add Member</span>
                         </button>
+                        {% endif %}
                     </div>
 
                     <div class="bg-white rounded-xl shadow-sm p-6">
                         <div class="mb-4">
                             <h2 class="text-lg font-semibold text-gray-800">Members</h2>
-                            <span class="member-count text-sm text-gray-500">2 members</span>
+                            <span class="member-count text-sm text-gray-500">{{ members|length }} member{{ members|length|pluralize }}</span>
                         </div>
                         
                         <div class="table-responsive">
@@ -262,58 +264,51 @@
                                     </tr>
                                 </thead>
                                 <tbody id="members-tbody">
-                                    <tr class="member-row" data-member-id="1" data-name="John Doe" data-email="johndoe@example.com" data-role="admin">
+                                    {% for member in members %}
+                                    <tr class="member-row" data-member-id="{{ member.id }}" data-name="{{ member.student.username }}" data-email="{{ member.student.email }}" data-role="{{ member.role }}">
                                         <td>
                                             <div class="member-info">
-                                                <div class="member-avatar">JD</div>
+                                                <div class="member-avatar">{{ member.student.username|slice:":2"|upper }}</div>
                                                 <div class="member-details">
-                                                    <div class="member-name">John Doe</div>
-                                                    <div class="member-email">johndoe@example.com</div>
+                                                    <div class="member-name">{{ member.student.username }}</div>
+                                                    <div class="member-email">{{ member.student.email }}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="role-tag admin">Admin</span>
+                                            <span class="role-tag {{ member.role }}">{{ member.role|title }}</span>
                                         </td>
-                                        <td>2023-01-15</td>
+                                        <td>{{ member.date_joined|date:"Y-m-d" }}</td>
                                         <td>
-                                            <span class="status-badge active">Active</span>
+                                            {% if member.is_approved %}
+                                                <span class="status-badge active">Active</span>
+                                            {% else %}
+                                                <span class="status-badge" style="background:#fee2e2;color:#991b1b;">Pending</span>
+                                            {% endif %}
                                         </td>
                                         <td class="actions">
-                                            <button class="btn-icon" title="Demote to Member" onclick="toggleMemberRole('1', 'admin')">
-                                                <i class="fas fa-arrow-down"></i>
-                                            </button>
-                                            <button class="btn-icon danger" title="Remove Member" onclick="confirmRemoveMember('1', 'John Doe')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            {% if member.is_approved %}
+                                                {% if user_role in "admin,leader" %}
+                                                    <button class="btn-icon" title="Promote/Demote" onclick="toggleMemberRole('{{ member.id }}', '{{ member.role }}')">
+                                                        <i class="fas fa-arrow-up"></i>
+                                                    </button>
+                                                    <button class="btn-icon danger" title="Remove Member" onclick="confirmRemoveMember('{{ member.id }}', '{{ member.student.username }}')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                {% endif %}
+                                            {% else %}
+                                                {% if user_role in "admin,leader" %}
+                                                    <button class="btn-icon" title="Approve" onclick="approveMember('{{ member.id }}', '{{ member.student.username }}')">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button class="btn-icon danger" title="Reject" onclick="rejectMember('{{ member.id }}', '{{ member.student.username }}')">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                {% endif %}
+                                            {% endif %}
                                         </td>
                                     </tr>
-                                    <tr class="member-row" data-member-id="2" data-name="Jane Smith" data-email="janesmith@example.com" data-role="leader">
-                                        <td>
-                                            <div class="member-info">
-                                                <div class="member-avatar">JS</div>
-                                                <div class="member-details">
-                                                    <div class="member-name">Jane Smith</div>
-                                                    <div class="member-email">janesmith@example.com</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="role-tag leader">Leader</span>
-                                        </td>
-                                        <td>2023-01-15</td>
-                                        <td>
-                                            <span class="status-badge active">Active</span>
-                                        </td>
-                                        <td class="actions">
-                                            <button class="btn-icon" title="Demote to Officer" onclick="toggleMemberRole('1', 'leader')">
-                                                <i class="fas fa-arrow-down"></i>
-                                            </button>
-                                            <button class="btn-icon danger" title="Remove Member" onclick="confirmRemoveMember('1', 'John Doe')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    {% endfor %}
                                 </tbody>
                             </table>
                             <div id="no-members" class="no-results" style="display: none;">
@@ -646,6 +641,58 @@
     </style>
 
     <script>
+        // Approve member join request
+        function approveMember(memberId, memberName) {
+            if (!confirm(`Approve ${memberName}'s join request?`)) return;
+            const csrftoken = getCookie('csrftoken');
+            fetch(`/organization/members/${memberId}/approve/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRFToken': csrftoken || ''
+                }
+            }).then(async (res) => {
+                if (!res.ok) throw new Error(await res.text());
+                return res.json();
+            }).then((data) => {
+                showSuccessMessage('Member approved and notified.');
+                location.reload();
+            }).catch((err) => {
+                alert('Unable to approve member.');
+                console.error(err);
+            });
+        }
+
+        // Reject member join request
+        function rejectMember(memberId, memberName) {
+            if (!confirm(`Reject ${memberName}'s join request?`)) return;
+            const csrftoken = getCookie('csrftoken');
+            fetch(`/organization/members/${memberId}/reject/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRFToken': csrftoken || ''
+                }
+            }).then(async (res) => {
+                if (!res.ok) throw new Error(await res.text());
+                return res.json();
+            }).then((data) => {
+                showSuccessMessage('Member rejected and notified.');
+                location.reload();
+            }).catch((err) => {
+                alert('Unable to reject member.');
+                console.error(err);
+            });
+        }
+        // CSRF helper (Django)
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
         // Initialize when DOM is fully loaded
         document.addEventListener('DOMContentLoaded', function() {
             // Elements

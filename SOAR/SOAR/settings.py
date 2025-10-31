@@ -1,3 +1,5 @@
+# Email backend for development: print emails to console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 """
 Django settings for SOAR project.
 

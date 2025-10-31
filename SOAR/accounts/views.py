@@ -2,14 +2,14 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import StudentRegistrationForm, CustomLoginForm
+from .forms import StudentRegistrationForm, CustomLoginForm, UserProfileForm
 from .models import User
 from supabase import create_client
 from decouple import config
 from django.core.exceptions import ImproperlyConfigured
-from organization.models import Organization
-from django.shortcuts import render, get_object_or_404
-from django.views.decorators.http import require_http_methods
+from organization.models import Organization, OrganizationMember, ROLE_MEMBER, Program
+from django.views.decorators.http import require_http_methods, require_POST
+from django.shortcuts import get_object_or_404
 
 @login_required
 def index(request):
@@ -21,7 +21,12 @@ def index(request):
             "member_count": org.members.filter(is_approved=True).count()
         })
 
-    return render(request, "accounts/index.html", {"org_data": org_data})
+    all_orgs = Organization.objects.all()
+    return render(request, "accounts/index.html", {
+        "org_data": org_data,
+        "all_orgs": all_orgs,
+        "user_orgs": user_orgs,
+    })
 
 @login_required
 def organization_page(request):
@@ -31,7 +36,16 @@ def organization_page(request):
 
 @login_required
 def profile(request):
-    return render(request, "accounts/profile.html")
+    user = request.user
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=user)
+    return render(request, "accounts/profile.html", {"form": form, "user": user})
 
 @login_required
 def members_management(request):
@@ -163,3 +177,42 @@ def logout_view(request):
 def organization_view(request):
     organization = get_object_or_404(Organization, user=request.user)
     return render(request, 'accounts/organizational.html', {'organization': organization})
+
+@login_required
+@require_POST
+def join_org(request, org_id):
+    organization = get_object_or_404(Organization, id=org_id)
+    already_member = OrganizationMember.objects.filter(organization=organization, student=request.user).exists()
+    if not already_member:
+        OrganizationMember.objects.create(
+            organization=organization,
+            student=request.user,
+            role=ROLE_MEMBER,
+            is_approved=False
+        )
+        messages.success(request, f"Request to join {organization.name} sent.")
+    else:
+        messages.info(request, f"You are already a member or have a pending request.")
+    return redirect('index')
+
+@login_required
+def org_overview(request, org_id):
+    organization = get_object_or_404(Organization, id=org_id)
+    allowed_programs = organization.allowed_programs.all()
+    user_program = getattr(request.user, 'course', None)
+    can_join = organization.is_public or allowed_programs.filter(name=user_program).exists()
+    # Check if user is org officer or leader
+    is_org_officer_or_leader = False
+    try:
+        member = OrganizationMember.objects.get(organization=organization, student=request.user)
+        is_org_officer_or_leader = member.role in ["officer", "leader"]
+    except OrganizationMember.DoesNotExist:
+        is_org_officer_or_leader = False
+    return render(request, 'organization/organization_profile.html', {
+        'organization': organization,
+        'programs': Program.objects.all(),
+        'can_join': can_join,
+        'user_program': user_program,
+        'allowed_programs': allowed_programs,
+        'is_org_officer_or_leader': is_org_officer_or_leader,
+    })

@@ -73,8 +73,12 @@
                         <span class="badge">3</span>
                     </div>
                     <div class="user-profile">
-                        <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" alt="{{ user.username }}">
-                        <span>{{ user.username }}</span>
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="{{ user.get_full_name }}">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" alt="{{ user.get_full_name }}">
+                        {% endif %}
+                        <span>{{ user.last_name|title }}, {{ user.first_name|title }}</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
@@ -100,114 +104,53 @@
                         </div>
 
                         <div class="profile-content">
-                            <form class="edit-profile-form" id="edit-profile-form">
+                            <form class="edit-profile-form" id="edit-profile-form" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
                                 <div class="profile-layout">
                                     <!-- Profile Picture Section -->
                                     <div class="profile-picture-section">
                                         <div class="profile-preview">
                                             <div class="profile-avatar" id="profile-avatar">
-                                                <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" alt="Student Profile" id="preview-image">
+                                                {% if user.profile_picture %}
+                                                    <img src="{{ user.profile_picture.url }}" alt="Student Profile" id="preview-image">
+                                                {% else %}
+                                                    <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" alt="Student Profile" id="preview-image">
+                                                {% endif %}
                                                 <div class="avatar-overlay">
                                                     <i class="fas fa-camera"></i>
                                                 </div>
                                             </div>
                                             <div class="profile-info">
-                                                <h4 id="preview-student-name">{{ user.username }}</h4>
+                                                <h4 id="preview-student-name">{{ user.get_full_name }}</h4>
                                                 <p class="profile-role">CIT-U Student</p>
                                             </div>
                                         </div>
                                         <div class="profile-actions">
-                                            <button type="button" class="btn btn-primary btn-upload" id="upload-photo-btn">
-                                                <i class="fas fa-upload"></i>
-                                                <span>Upload New Photo</span>
-                                            </button>
-                                            <button type="button" class="btn btn-outline btn-delete" id="delete-photo-btn">
-                                                <i class="fas fa-trash"></i>
-                                                <span>Delete</span>
-                                            </button>
+                                            {{ form.profile_picture }}
                                         </div>
-                                        <input type="file" id="edit-profile-image" name="profile_image" accept=".jpg,.jpeg,.png" style="display: none;">
-                                        <div class="error-message" id="image-error"></div>
                                     </div>
-
                                     <!-- Form Fields Section -->
                                     <div class="form-fields-section">
-                                        <!-- Personal Information -->
-                                        <div class="form-section">
-                                            <h4 class="section-title">
-                                                <i class="fas fa-user"></i>
-                                                Personal Information
-                                            </h4>
-                                            
-                                            <div class="form-row">
-                                                <div class="form-group">
-                                                    <label for="edit-student-id">Student ID *</label>
-                                                    <input type="text" id="edit-student-id" name="student_id" required placeholder="Enter student ID">
-                                                    <div class="error-message" id="student-id-error"></div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="edit-full-name">Full Name *</label>
-                                                    <input type="text" id="edit-full-name" name="full_name" required placeholder="Enter full name">
-                                                    <div class="error-message" id="full-name-error"></div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="form-row">
-                                                <div class="form-group">
-                                                    <label for="edit-email">Email Address *</label>
-                                                    <input type="email" id="edit-email" name="email" required placeholder="student@citu.edu">
-                                                    <div class="error-message" id="email-error"></div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="edit-contact">Contact Number</label>
-                                                    <input type="tel" id="edit-contact" name="contact" placeholder="+63 912 345 6789">
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="edit-about">About Me</label>
-                                                <textarea id="edit-about" name="about" rows="4" maxlength="500" placeholder="Tell us about yourself, your interests, and academic goals..."></textarea>
-                                                <div class="char-counter">
-                                                    <span id="about-count">0</span>/500 characters
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Address Information -->
-                                        <div class="form-section">
-                                            <h4 class="section-title">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                Address Information
-                                            </h4>
-                                            
-                                            <div class="form-row">
-                                                <div class="form-group">
-                                                    <label for="edit-country">Country</label>
-                                                    <select id="edit-country" name="country">
-                                                        <option value="">Select Country</option>
-                                                        <option value="Philippines" selected>Philippines</option>
-                                                        <option value="United States">United States</option>
-                                                        <option value="Canada">Canada</option>
-                                                        <option value="Australia">Australia</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="edit-city">City</label>
-                                                    <input type="text" id="edit-city" name="city" placeholder="Enter city">
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="form-row">
-                                                <div class="form-group">
-                                                    <label for="edit-postcode">Postcode</label>
-                                                    <input type="text" id="edit-postcode" name="postcode" placeholder="Enter postcode">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="edit-state">State/Province</label>
-                                                    <input type="text" id="edit-state" name="state" placeholder="Enter state/province">
-                                                </div>
-                                            </div>
-                                        </div>
+                                        {{ form.first_name.label_tag }}
+                                        {{ form.first_name }}
+                                        {{ form.last_name.label_tag }}
+                                        {{ form.last_name }}
+                                        {{ form.email.label_tag }}
+                                        {{ form.email }}
+                                        {{ form.student_id.label_tag }}
+                                        {{ form.student_id }}
+                                        {{ form.course.label_tag }}
+                                        {{ form.course }}
+                                        {{ form.year_level.label_tag }}
+                                        {{ form.year_level }}
+                                    </div>
+                                </div>
+                                <div class="profile-footer">
+                                    <div class="profile-actions-footer">
+                                        <button type="submit" class="btn btn-primary" id="save-profile-btn">
+                                            <i class="fas fa-save"></i>
+                                            <span>Save Changes</span>
+                                        </button>
                                     </div>
                                 </div>
                             </form>

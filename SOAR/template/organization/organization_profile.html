@@ -37,7 +37,7 @@
       </div>
 
       <nav class="space-y-2">
-        <a href="{% url 'orgpage' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+        <a href="{% url 'orgpage' organization.id %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
           <i class="fas fa-home text-lg"></i>
           <span>Feed</span>
         </a>
@@ -65,9 +65,21 @@
     <header class="bg-white shadow-sm">
       <div class="px-6 py-4 flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-800">Organization Profile</h1>
+        {% if request.user.is_superuser or request.user.is_staff or is_org_officer_or_leader %}
+        {% if request.user.is_superuser or request.user.is_staff or is_org_officer_or_leader %}
         <a href="{% url 'organization_editprofile' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
           <i class="fas fa-edit mr-1"></i> Edit Profile
         </a>
+        {% endif %}
+        {% endif %}
+        {% if can_join %}
+        <form method="POST" action="{% url 'join_org' organization.id %}">
+          {% csrf_token %}
+          <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">Join Club</button>
+        </form>
+        {% else %}
+        <span class="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg">You are not eligible to join this organization.</span>
+        {% endif %}
       </div>
     </header>
 

@@ -8,7 +8,7 @@ router.register(r'members', views.OrganizationMemberViewSet, basename='organizat
 router.register(r'programs', views.ProgramViewSet, basename='program')
 
 urlpatterns = [
-    path('orgpage/', views.orgpage, name='orgpage'),
+    path('orgpage/<uuid:org_id>/', views.orgpage, name='orgpage'),
     path('profile/', views.organization_profile, name='organization_profile'),
     path('profile/edit/', views.organization_edit_profile, name='organization_editprofile'),
     #path('members/', views.membermanagement, name='membermanagement'),
