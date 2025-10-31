@@ -15,4 +15,5 @@ urlpatterns = [
     path('members/manage/', views.membermanagement, name='membermanagement'),
     path('members/<uuid:member_id>/demote/', views.demote_member, name='demote_member'),
     path('api/update-organization/', views.api_update_organization, name='api_update_organization'),
+    
 ] + router.urls

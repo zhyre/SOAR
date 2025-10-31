@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SOAR - Members Management</title>
-    <link rel="stylesheet" href="{% static 'accounts/organization.css' %}">
+    <link rel="stylesheet" href="{% static 'css/accounts/organization.css' %}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{% static 'accounts/profile.css' %}">
-    <link rel="stylesheet" href="{% static 'accounts/members_management.css' %}">
+    <link rel="stylesheet" href="{% static 'css/accounts/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/accounts/members_management.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -111,92 +111,113 @@
             margin-top: 4px;
             display: none;
         }
+        /* Sidebar styles aligned with org page */
+        .sidebar {
+            transition: transform 0.3s ease, width 0.3s ease;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+            background-color: #0f172a; /* slate-900 */
+            color: #fff;
+        }
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        .sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+                width: 16rem; /* w-64 */
+                height: 100vh;
+                overflow-y: auto;
+            }
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
-<body class="organization-page" data-user-role="{{ user_role }}">
-    <!-- Overlay for mobile sidebar -->
-    <div class="overlay"></div>
+<body class="organization-page" data-user-role="{{ user_role }}" data-org-id="{{ organization.id }}" data-user-search-url="/api/organizations/{{ organization.id }}/users/search/" data-add-member-url="/api/organizations/{{ organization.id }}/members/">
+    <!-- Overlay for mobile (matches org page) -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
     
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header" style="display: flex; align-items: center; padding: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR Logo" style="height: 32px; width: auto;">
-                    <h2 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: white;"></h2>
-                </div>
-                <span class="sidebar-close" style="margin-left: auto;"><i class="fas fa-times"></i></span>
-            </div>
-
-            <!-- Organization Info -->
-            <div class="mb-8 pb-6 border-b border-blue-500">
-                <div class="flex items-center space-x-4 pl-4">
-                    <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-users text-blue-600 text-xl"></i>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar (matches org page) -->
+        <aside id="sidebar" class="sidebar text-white w-64 flex-shrink-0 overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center justify-center">
+                            <img src="{% static 'images/soar-logo.png' %}" alt="SOAR Logo" class="h-8 w-auto">
+                        </div>
+                        <span class="logo-text text-xl font-bold text-white"></span>
                     </div>
-                    <div class="sidebar-text">
-                        <h3 class="font-semibold text-sm">{{ organization.name|default:"Computer Science Society" }}</h3>
-                        <p class="text-blue-200 text-xs">128 members</p>
-                    </div>
-                </div>
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="{% url 'orgpage' %}" class="nav-item">
-                    <i class="fas fa-home"></i>
-                    <span>Feed</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>Events</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>Announcements</span>
-                </a>
-                <a href="{% url 'membermanagement' %}" class="nav-item active">
-                    <i class="fas fa-user-friends"></i>
-                    <span>Members</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-images"></i>
-                    <span>Gallery</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-building"></i>
-                    <span>Organization Profile</span>
-                </a>
-            </nav>
-
-            <!-- Back to Organization -->
-        </aside>
-        <main class="main-content">
-            <header class="top-bar">
-                <div class="top-bar-left">
-                    <button class="menu-toggle" aria-label="Toggle menu">
+                    <button id="sidebarToggle" class="hidden md:block p-2 hover:bg-blue-500 rounded-lg transition">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="mb-0">Team Members</h2>
-                    </div>
-                    <div class="breadcrumb">
-                        <span class="current">Members Management</span>
-                    </div>
                 </div>
-                <div class="user-menu">
-                    <div class="notifications">
-                        <i class="far fa-bell"></i>
-                        <span class="badge">3</span>
-                    </div>
-                    <div class="user-profile">
-                        <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" alt="{{ user.username }}">
-                        <span>{{ user.username }}</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                </div>
-            </header>
 
-            <div class="dashboard-content">
+                <!-- Organization Info -->
+                <div class="mb-8 pb-6 border-b border-blue-500">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-blue-600 text-lg"></i>
+                        </div>
+                        <div class="sidebar-text">
+                            <h3 class="font-semibold text-sm">{{ organization.name|default:"Computer Science Society" }}</h3>
+                            <p class="text-blue-200 text-xs">128 members</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="space-y-2">
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-blue-500 bg-opacity-50 hover:bg-opacity-70 transition">
+                        <i class="fas fa-home text-lg"></i>
+                        <span class="sidebar-text font-medium">Feed</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-calendar-alt text-lg"></i>
+                        <span class="sidebar-text font-medium">Events</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-bullhorn text-lg"></i>
+                        <span class="sidebar-text font-medium">Announcements</span>
+                    </a>
+                    <a href="{% url 'membermanagement' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-blue-500 bg-opacity-50 hover:bg-opacity-70 transition">
+                        <i class="fas fa-user-friends text-lg"></i>
+                        <span class="sidebar-text font-medium">Members</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-images text-lg"></i>
+                        <span class="sidebar-text font-medium">Gallery</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-cog text-lg"></i>
+                        <span class="sidebar-text font-medium">Settings</span>
+                    </a>
+                </nav>
+
+                <!-- Back to Dashboard -->
+                <div class="mt-8 pt-6 border-t border-blue-500">
+                    <a href="{% url 'index' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
+                        <i class="fas fa-arrow-left text-lg"></i>
+                        <span class="sidebar-text font-medium">Back to Dashboard</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <main class="flex-1 overflow-y-auto p-4 md:p-8">
+                <!-- Mobile menu toggle button (no top bar) -->
+                <button id="mobileMenuToggle" class="md:hidden mb-4 p-2 hover:bg-gray-100 rounded-lg border border-gray-200">
+                    <i class="fas fa-bars text-gray-600"></i>
+                </button>
                 <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
                     <div class="flex items-center justify-between mb-4">
                         <div>
@@ -212,35 +233,15 @@
                     </div>
                 </div>
 
-                    <!-- Add Member Form -->
-                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Add New Member</h3>
-                        <form id="add-member-form" class="add-member-form">
-                            <div class="form-group">
-                                <label for="member-name">Member Name</label>
-                                <input type="text" id="member-name" name="name" required 
-                                       placeholder="Enter member's name">
-                                <div id="name-error" class="error-message"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="member-role">Role</label>
-                                <select id="member-role" name="role" required>
-                                    <option value="" disabled selected>Select a role</option>
-                                    <option value="Member">Member</option>
-                                    <option value="Officer">Officer</option>
-                                </select>
-                                <div id="role-error" class="error-message"></div>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Add Member
-                                </button>
-                            </div>
-                        </form>
-                        <div id="success-message" class="success-message" style="display: none;">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Member added successfully!</span>
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Add Member</h3>
+                            <p class="text-sm text-gray-500">Search affiliated users and assign a role</p>
                         </div>
+                        <button id="add-member-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition inline-flex items-center gap-2">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add Member</span>
+                        </button>
                     </div>
 
                     <div class="bg-white rounded-xl shadow-sm p-6">
@@ -333,34 +334,43 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
     <!-- Add Member Modal -->
     <div id="add-member-modal" class="simple-modal">
         <div class="simple-modal-content">
             <div class="simple-modal-header">
-                <h3>Add New Member</h3>
+                <h3>Add Member</h3>
                 <button id="close-add-member-modal" class="close-btn">&times;</button>
             </div>
             <form id="add-member-form">
+                <input type="hidden" id="selected-user-id" name="user_id">
                 <div class="form-group">
-                    <label for="member-name">Member Name</label>
-                    <input type="text" id="member-name" name="name" placeholder="Enter member's name">
+                    <label for="user-search-input">Search User</label>
+                    <div style="position: relative;">
+                        <input type="text" id="user-search-input" placeholder="Search users affiliated with this organization" autocomplete="off">
+                        <div id="user-search-results" style="position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #e5e7eb; border-top: none; max-height: 300px; overflow-y: auto; z-index: 10; display: none;"></div>
+                    </div>
                     <div id="name-error" class="error-message"></div>
                 </div>
                 <div class="form-group">
-                    <label for="member-role">Role</label>
-                    <select id="member-role" name="role">
-                        <option value="" disabled selected>Select a role</option>
-                        <option value="Member">Member</option>
-                        <option value="Officer">Officer</option>
-                    </select>
+                    <label>Role</label>
+                    <div style="display: flex; gap: 12px;">
+                        <label style="display: inline-flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="role" value="Leader">
+                            <span>Leader</span>
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="role" value="Member">
+                            <span>Regular</span>
+                        </label>
+                    </div>
                     <div id="role-error" class="error-message"></div>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Member</button>
+                    <button type="submit" class="btn btn-primary" disabled><i class="fas fa-plus"></i> Add Member</button>
                     <button type="button" id="cancel-add-member" class="btn btn-secondary">Cancel</button>
                 </div>
             </form>
@@ -487,16 +497,162 @@
                 margin-top: 0.5rem;
             }
         }
+        /* Members table cleanup */
+        .members-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .members-table thead th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: #64748b; /* slate-500 */
+            background-color: #f8fafc; /* slate-50 */
+            border-bottom: 1px solid #e2e8f0; /* slate-200 */
+            text-transform: uppercase;
+        }
+        .members-table tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9; /* slate-100 */
+            vertical-align: middle;
+        }
+        .members-table tbody tr:hover {
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .member-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 220px;
+        }
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2563eb; /* blue-600 */
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .member-details .member-name {
+            color: #0f172a; /* slate-900 */
+            font-weight: 600;
+        }
+        .member-details .member-email {
+            color: #64748b; /* slate-500 */
+            font-size: 12px;
+            max-width: 240px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .role-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .role-tag.admin {
+            background: #dbeafe; /* blue-100 */
+            color: #1e40af;      /* blue-800 */
+        }
+        .role-tag.leader {
+            background: #dcfce7; /* green-100 */
+            color: #166534;      /* green-800 */
+        }
+        .role-tag.officer {
+            background: #fee2e2; /* red-100 */
+            color: #991b1b;      /* red-800 */
+        }
+        .role-tag.member {
+            background: #f1f5f9; /* slate-100 */
+            color: #334155;      /* slate-700 */
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-badge.active {
+            background: #dcfce7; /* green-100 */
+            color: #166534;      /* green-800 */
+        }
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            color: #334155; /* slate-700 */
+            background: #ffffff;
+            transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        }
+        .btn-icon:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        .btn-icon.danger {
+            color: #b91c1c; /* red-700 */
+            border-color: #fecaca; /* red-200 */
+            background: #fff7f7;
+        }
+        .btn-icon.danger:hover {
+            background: #fee2e2;
+            border-color: #fca5a5; /* red-300 */
+        }
+        /* User search dropdown */
+        #user-search-results {
+            border-radius: 0 0 8px 8px;
+        }
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            cursor: pointer;
+        }
+        .search-result-item:hover {
+            background: #f8fafc;
+        }
+        .search-result-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 9999px;
+            background: #e2e8f0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #334155;
+            font-weight: 600;
+        }
     </style>
 
     <script>
         // Initialize when DOM is fully loaded
         document.addEventListener('DOMContentLoaded', function() {
             // Elements
-            const menuToggle = document.querySelector('.menu-toggle');
-            const sidebar = document.querySelector('.sidebar');
-            const overlay = document.querySelector('.overlay');
-            const sidebarClose = document.querySelector('.sidebar-close');
+            const menuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const sidebarClose = document.getElementById('sidebarToggle');
             const addMemberBtn = document.getElementById('add-member-btn');
             const addMemberModal = document.getElementById('add-member-modal');
             const closeAddMemberModal = document.getElementById('close-add-member-modal');
@@ -504,35 +660,59 @@
             const addMemberForm = document.getElementById('add-member-form');
             const searchInput = document.getElementById('member-search');
             const noMembersMessage = document.getElementById('no-members');
+            const userSearchInput = document.getElementById('user-search-input');
+            const userSearchResults = document.getElementById('user-search-results');
+            const selectedUserInput = document.getElementById('selected-user-id');
+            const submitBtn = addMemberForm?.querySelector('button[type="submit"]');
+            const roleRadios = addMemberForm?.querySelectorAll('input[name="role"]');
+            const userSearchUrl = document.body.getAttribute('data-user-search-url');
+            const addMemberUrl = document.body.getAttribute('data-add-member-url');
+
+            // Pagination state for user search
+            let searchPage = 1;
+            const pageSize = 5;
+            let lastQuery = '';
+            let lastHasNext = false;
+            let lastHasPrev = false;
 
             // Toggle sidebar
             function toggleSidebar() {
-                sidebar.classList.toggle('show');
-                overlay.classList.toggle('show');
-                document.body.classList.toggle('no-scroll');
+                // Mobile behavior (matches org page)
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('hidden');
                 
                 // Toggle aria-expanded for accessibility
-                const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true' || false;
-                menuToggle.setAttribute('aria-expanded', !isExpanded);
+                const isExpanded = menuToggle?.getAttribute('aria-expanded') === 'true' || false;
+                menuToggle?.setAttribute('aria-expanded', (!isExpanded).toString());
             }
 
             // Show add member modal
             function showAddMemberModal() {
                 addMemberModal.classList.add('show');
-                overlay.classList.add('show');
                 document.body.classList.add('no-scroll');
                 
                 // Focus the first input when modal opens
-                const firstInput = addMemberModal.querySelector('input');
+                const firstInput = userSearchInput;
                 if (firstInput) {
                     setTimeout(() => firstInput.focus(), 100);
                 }
+                // reset previous state
+                if (selectedUserInput) {
+                    selectedUserInput.value = '';
+                    selectedUserInput.removeAttribute('data-name');
+                    selectedUserInput.removeAttribute('data-email');
+                }
+                if (userSearchInput) userSearchInput.value = '';
+                if (userSearchResults) userSearchResults.style.display = 'none';
+                roleRadios?.forEach(r => r.checked = false);
+                submitBtn && (submitBtn.disabled = true);
+                searchPage = 1;
+                lastQuery = '';
             }
 
             // Hide add member modal
             function hideAddMemberModal() {
                 addMemberModal.classList.remove('show');
-                overlay.classList.remove('show');
                 document.body.classList.remove('no-scroll');
                 
                 // Reset form when hiding modal
@@ -540,6 +720,7 @@
                     addMemberForm.reset();
                     clearMemberErrors();
                 }
+                if (userSearchResults) userSearchResults.style.display = 'none';
             }
 
             // Clear all member form errors
@@ -565,15 +746,164 @@
                 return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
             }
 
+            // Debounce helper
+            function debounce(fn, delay = 300) {
+                let t;
+                return (...args) => {
+                    clearTimeout(t);
+                    t = setTimeout(() => fn(...args), delay);
+                };
+            }
+
+            function updateSubmitState() {
+                const hasUser = !!selectedUserInput?.value;
+                const role = addMemberForm?.querySelector('input[name="role"]:checked')?.value;
+                if (submitBtn) submitBtn.disabled = !(hasUser && role);
+            }
+
+            function renderUserResults(users, meta = {}) {
+                if (!userSearchResults) return;
+                if (!users || users.length === 0) {
+                    const msg = (lastQuery && lastQuery.length >= 2) ? 'No users found' : 'Type at least 2 characters to search';
+                    userSearchResults.innerHTML = `<div class="px-3 py-2 text-sm text-slate-500">${msg}</div>`;
+                    userSearchResults.style.display = 'block';
+                    return;
+                }
+                userSearchResults.innerHTML = users.map(u => {
+                    const initials = (u.name || u.full_name || u.username || '?')
+                        .split(' ').map(s => s[0]).join('').substring(0,2).toUpperCase();
+                    const name = u.name || u.full_name || u.username || 'Unknown';
+                    const email = u.email || '';
+                    const program = u.program || u.affiliation || '';
+                    return `
+                        <div class="search-result-item" data-id="${u.id}" data-name="${name}" data-email="${email}">
+                            <div class="search-result-avatar">${initials}</div>
+                            <div>
+                                <div class="text-sm font-medium text-slate-800">${name}</div>
+                                <div class="text-xs text-slate-500">${email}${program ? ' • ' + program : ''}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Pagination footer
+                const hasNext = !!meta.next || meta.has_next === true || (meta.count && (searchPage * pageSize) < meta.count);
+                const hasPrev = searchPage > 1;
+                lastHasNext = hasNext;
+                lastHasPrev = hasPrev;
+                userSearchResults.innerHTML += `
+                    <div class="flex items-center justify-between px-2 py-2 border-t border-slate-200 bg-white sticky bottom-0">
+                        <button id="user-search-prev" class="px-2 py-1 text-sm rounded border ${hasPrev ? 'text-slate-700 border-slate-300 hover:bg-slate-50' : 'text-slate-300 border-slate-200 cursor-not-allowed'}">Prev</button>
+                        <span class="text-xs text-slate-500">Page ${searchPage}${meta.count ? ` of ${Math.ceil(meta.count / pageSize)}` : ''}</span>
+                        <button id="user-search-next" class="px-2 py-1 text-sm rounded border ${hasNext ? 'text-slate-700 border-slate-300 hover:bg-slate-50' : 'text-slate-300 border-slate-200 cursor-not-allowed'}">Next</button>
+                    </div>
+                `;
+                userSearchResults.style.display = 'block';
+
+                // attach click handlers
+                userSearchResults.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const id = item.getAttribute('data-id');
+                        const name = item.getAttribute('data-name');
+                        const email = item.getAttribute('data-email');
+                        if (selectedUserInput) {
+                            selectedUserInput.value = id;
+                            selectedUserInput.setAttribute('data-name', name);
+                            selectedUserInput.setAttribute('data-email', email);
+                        }
+                        if (userSearchInput) userSearchInput.value = `${name} (${email})`;
+                        userSearchResults.style.display = 'none';
+                        updateSubmitState();
+                    });
+                });
+
+                // Pagination handlers
+                const prevBtn = document.getElementById('user-search-prev');
+                const nextBtn = document.getElementById('user-search-next');
+                prevBtn && prevBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!lastHasPrev) return;
+                    searchPage = Math.max(1, searchPage - 1);
+                    debouncedSearch.flush?.();
+                    doSearch(lastQuery);
+                });
+                nextBtn && nextBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!lastHasNext) return;
+                    searchPage += 1;
+                    debouncedSearch.flush?.();
+                    doSearch(lastQuery);
+                });
+            }
+
+            function doSearch(q) {
+                if (!q || q.trim().length < 2) {
+                    lastQuery = q;
+                    renderUserResults([]);
+                    return;
+                }
+                (async () => {
+                    try {
+                        const url = new URL(userSearchUrl, window.location.origin);
+                        url.searchParams.set('q', q.trim());
+                        url.searchParams.set('page', String(searchPage));
+                        url.searchParams.set('page_size', String(pageSize));
+                        const res = await fetch(url.toString(), { headers: { 'Accept': 'application/json' } });
+                        if (!res.ok) throw new Error('Search failed');
+                        const data = await res.json();
+                        const users = Array.isArray(data) ? data : (data.results || []);
+                        const meta = Array.isArray(data) ? {} : { count: data.count, next: data.next, previous: data.previous };
+                        renderUserResults(users, meta);
+                    } catch (e) {
+                        renderUserResults([], {});
+                    }
+                })();
+                lastQuery = q;
+            }
+
+            const debouncedSearch = debounce(doSearch, 300);
+            debouncedSearch.flush = function(){};
+
             // Event Listeners
             if (menuToggle) menuToggle.addEventListener('click', toggleSidebar);
-            if (overlay) overlay.addEventListener('click', toggleSidebar);
-            if (sidebarClose) sidebarClose.addEventListener('click', toggleSidebar);
+            if (overlay) overlay.addEventListener('click', () => {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.add('hidden');
+            });
+            if (sidebarClose) sidebarClose.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+
+            // Mobile actions dropdown (matches org page)
+            const mobileActionsBtn = document.getElementById('mobileActionsBtn');
+            const mobileActionsMenu = document.getElementById('mobileActionsMenu');
+            mobileActionsBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                mobileActionsMenu.classList.toggle('hidden');
+            });
+            document.addEventListener('click', () => {
+                mobileActionsMenu?.classList.add('hidden');
+            });
 
             // Modal event listeners
             if (addMemberBtn) addMemberBtn.addEventListener('click', showAddMemberModal);
             if (closeAddMemberModal) closeAddMemberModal.addEventListener('click', hideAddMemberModal);
             if (cancelAddMember) cancelAddMember.addEventListener('click', hideAddMemberModal);
+            if (userSearchInput) userSearchInput.addEventListener('input', (e) => {
+                selectedUserInput.value = '';
+                selectedUserInput.removeAttribute('data-name');
+                selectedUserInput.removeAttribute('data-email');
+                searchPage = 1;
+                debouncedSearch(e.target.value);
+                updateSubmitState();
+            });
+            if (roleRadios) roleRadios.forEach(r => r.addEventListener('change', updateSubmitState));
+            document.addEventListener('click', (e) => {
+                if (!userSearchResults || !userSearchInput) return;
+                if (!userSearchResults.contains(e.target) && e.target !== userSearchInput) {
+                    userSearchResults.style.display = 'none';
+                }
+            });
 
             // Search functionality
             if (searchInput) {
@@ -597,116 +927,118 @@
                 });
             }
 
-            // Form submission
+            // Form submission (uses selected user + role)
             if (addMemberForm) {
                 addMemberForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
-                    // Get form data
-                    const formData = new FormData(addMemberForm);
-                    const name = formData.get('name').trim();
-                    const role = formData.get('role');
-                    
-                    // Clear previous errors
                     clearMemberErrors();
-                    
-                    // Validate form
-                    let isValid = true;
-                    
-                    if (!name) {
-                        showError('name-error', 'Name is required');
-                        document.getElementById('member-name').focus();
-                        isValid = false;
+
+                    const userId = selectedUserInput?.value;
+                    const role = addMemberForm?.querySelector('input[name="role"]:checked')?.value;
+                    const name = selectedUserInput?.getAttribute('data-name') || '';
+                    const email = selectedUserInput?.getAttribute('data-email') || '';
+
+                    if (!userId) {
+                        showError('name-error', 'Please select a user');
+                        userSearchInput?.focus();
+                        return;
                     }
-                    
                     if (!role) {
                         showError('role-error', 'Please select a role');
-                        if (isValid) document.getElementById('member-role').focus();
-                        isValid = false;
+                        return;
                     }
-                    
-                    if (!isValid) return;
-                    
-                    // Simulate form submission with loading state
-                    const submitBtn = addMemberForm.querySelector('button[type="submit"]');
+
                     const originalBtnText = submitBtn.innerHTML;
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-                    
-                    // Simulate API call
-                    setTimeout(() => {
-                        // Create new member row
-                        const newMemberId = Date.now().toString();
+
+                    // role mapping: Leader->leader, Regular/Member->member
+                    const apiRole = (role && role.toLowerCase() === 'leader') ? 'leader' : 'member';
+
+                    // CSRF helper (Django)
+                    function getCookie(name) {
+                        const value = `; ${document.cookie}`;
+                        const parts = value.split(`; ${name}=`);
+                        if (parts.length === 2) return parts.pop().split(';').shift();
+                    }
+                    const csrftoken = getCookie('csrftoken');
+
+                    // Persist via API
+                    fetch(addMemberUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRFToken': csrftoken || ''
+                        },
+                        body: JSON.stringify({ user_id: userId, role: apiRole })
+                    }).then(async (res) => {
+                        if (!res.ok) {
+                            const errText = await res.text().catch(() => '');
+                            throw new Error(errText || 'Failed to add member');
+                        }
+                        return res.json().catch(() => ({ success: true }));
+                    }).then((data) => {
+                        const newMemberId = String(data.id || Date.now());
                         const newMemberRow = document.createElement('tr');
                         newMemberRow.className = 'member-row';
                         newMemberRow.setAttribute('data-member-id', newMemberId);
-                        newMemberRow.setAttribute('data-name', name);
-                        newMemberRow.setAttribute('data-email', `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`);
-                        newMemberRow.setAttribute('data-role', role);
-                        
-                        // Get today's date in YYYY-MM-DD format
+                        const displayName = data.name || data.full_name || name;
+                        const displayEmail = data.email || email;
+                        const displayRole = (data.role || apiRole).toLowerCase();
+                        newMemberRow.setAttribute('data-name', displayName);
+                        newMemberRow.setAttribute('data-email', displayEmail);
+                        newMemberRow.setAttribute('data-role', displayRole);
+
                         const today = new Date();
                         const formattedDate = today.toISOString().split('T')[0];
-                        
-                        // Create the member row HTML with the same structure as existing members
+
                         newMemberRow.innerHTML = `
                             <td>
                                 <div class="member-info">
-                                    <div class="member-avatar">${getInitials(name)}</div>
+                                    <div class="member-avatar">${getInitials(displayName)}</div>
                                     <div class="member-details">
-                                        <div class="member-name">${name}</div>
-                                        <div class="member-email">${name.toLowerCase().replace(/\s+/g, '.')}@example.com</div>
+                                        <div class="member-name">${displayName}</div>
+                                        <div class="member-email">${displayEmail}</div>
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                <span class="role-tag ${role.toLowerCase()}">${role}</span>
+                                <span class="role-tag ${displayRole}">${displayRole.charAt(0).toUpperCase() + displayRole.slice(1)}</span>
                             </td>
                             <td>${formattedDate}</td>
                             <td>
                                 <span class="status-badge active">Active</span>
                             </td>
                             <td class="actions">
-                                ${['leader','admin'].includes(document.body.getAttribute('data-user-role').toLowerCase())
-                                    ? `<button class="btn btn-success btn-sm promote-btn" onclick="toggleMemberRole('${newMemberId}', '${role}')">Promote</button>
-                                    <button class="btn btn-warning btn-sm demote-btn" onclick="toggleMemberRole('${newMemberId}', '${role}')">Demote</button>`
-                                    : `<span class="text-muted">No actions</span>`}
-                                <button class="btn-icon danger" title="Remove Member" onclick="confirmRemoveMember('${newMemberId}', '${name.replace(/'/g, "\\'")}')">
+                                <button class="btn-icon danger" title="Remove Member" onclick="confirmRemoveMember('${newMemberId}', '${displayName.replace(/'/g, "\\'")}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
                         `;
 
-                        
-                        // Add the new row to the table
                         const tbody = document.querySelector('#members-tbody');
                         if (tbody) {
                             tbody.prepend(newMemberRow);
-                            
-                            // Update member count
                             const memberCount = document.querySelectorAll('.member-row').length;
                             const memberCountElement = document.querySelector('.member-count');
                             if (memberCountElement) {
                                 memberCountElement.textContent = `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`;
                             }
-                            
-                            // Hide no members message if shown
-                            if (noMembersMessage) {
-                                noMembersMessage.style.display = 'none';
-                            }
+                            if (noMembersMessage) noMembersMessage.style.display = 'none';
                         }
-                        
-                        // Reset form and hide modal
+
                         addMemberForm.reset();
                         hideAddMemberModal();
-                        
-                        // Reset button state
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalBtnText;
-                        
-                        // Show success message
                         showSuccessMessage('Member added successfully!');
-                    }, 800);
+                    }).catch((err) => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                        showError('name-error', 'Unable to add member.');
+                        console.error(err);
+                    });
                 });
             }
         });
