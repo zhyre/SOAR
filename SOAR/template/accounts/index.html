@@ -96,7 +96,7 @@
                             <i class="fas fa-bars text-gray-600"></i>
                         </button>
                         <div>
-                            <h1 class="text-2xl font-bold text-gray-800">Welcome, {{ user.username }}! 👋</h1>
+                            <h1 class="text-2xl font-bold text-gray-800">Welcome, {{ user.last_name|title }}, {{ user.first_name|title }}{% if user.middle_name %} {{ user.middle_name|title }}{% endif %}! 👋</h1>
                             <p class="text-sm text-gray-500">Track your organizations and upcoming events</p>
                         </div>
                     </div>
@@ -108,12 +108,14 @@
                             <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                         </button>
                         <div class="hidden md:block text-right">
-                            <p class="text-sm font-medium text-gray-700">{{ user.username }}</p>
+                            <p class="text-sm font-medium text-gray-700">{{ user.last_name|title }}, {{ user.first_name|title }}{% if user.middle_name %} {{ user.middle_name|title }}{% endif %}</p>
                             <p class="text-xs text-gray-500">Student</p>
                         </div>
-                        <img src="https://ui-avatars.com/api/?name={{ user.username|urlencode }}&background=2563eb&color=fff" 
-                             alt="{{ user.username }}" 
-                             class="w-10 h-10 rounded-full border-2 border-blue-500 cursor-pointer">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="{{ user.last_name }}, {{ user.first_name }}" class="w-10 h-10 rounded-full border-2 border-blue-500 cursor-pointer">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ user.last_name }}+{{ user.first_name }}&background=2563eb&color=fff" alt="{{ user.last_name }}, {{ user.first_name }}" class="w-10 h-10 rounded-full border-2 border-blue-500 cursor-pointer">
+                        {% endif %}
                     </div>
                 </div>
             </header>
@@ -126,7 +128,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Organizations</p>
-                                <h3 class="text-3xl font-bold text-gray-800">3</h3>
+                                <h3 class="text-3xl font-bold text-gray-800">{{ all_orgs.count }}</h3>
                             </div>
                             <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
                                 <i class="fas fa-users text-blue-600 text-2xl"></i>
@@ -164,94 +166,79 @@
                             <h2 class="text-2xl font-bold text-gray-800">My Organizations</h2>
                             <p class="text-gray-500">Click on an organization to view its dashboard</p>
                         </div>
-                        <button class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                            <i class="fas fa-search"></i>
-                            <span>Find More</span>
-                        </button>
                     </div>
-
-                    <!-- Organization Cards Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Organization Card 1 -->
-                        <a href="{% url 'orgpage' %}" class="org-card block bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer">
+                        {% for item in org_data %}
+                        <a href="{% url 'orgpage' item.org.id %}" class="org-card block bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer">
                             <div class="h-28 bg-gradient-to-r from-blue-500 to-blue-600 relative">
                                 <div class="absolute inset-0 bg-black bg-opacity-10"></div>
                             </div>
                             <div class="p-6">
                                 <div class="flex items-start justify-between mb-4">
                                     <div class="w-12 h-12 bg-white rounded-xl shadow-lg flex items-center justify-center -mt-6 border-4 border-white">
-                                        <i class="fas fa-laptop-code text-blue-600 text-xl"></i>
+                                        <i class="fas fa-users text-blue-600 text-xl"></i>
                                     </div>
-                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">Academic</span>
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">{{ item.org.name }}</span>
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-2">Computer Science Society</h3>
-                                <p class="text-gray-600 text-sm mb-4">Promoting computer science education and innovation among students</p>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">{{ item.org.name }}</h3>
+                                <p class="text-gray-600 text-sm mb-4">{{ item.org.description }}</p>
                                 <div class="flex items-center justify-between text-sm text-gray-500">
                                     <span class="flex items-center space-x-1">
                                         <i class="fas fa-users"></i>
-                                        <span>128 members</span>
-                                    </span>
-                                    <span class="flex items-center space-x-1">
-                                        <i class="fas fa-calendar"></i>
-                                        <span>5 events</span>
+                                        <span>{{ item.member_count }} members</span>
                                     </span>
                                 </div>
                             </div>
                         </a>
+                        {% empty %}
+                        <p class="text-gray-500">You are not a member of any organizations yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
 
-                        <!-- Organization Card 2 -->
-                        <a href="{% url 'orgpage' %}" class="org-card block bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer">
-                            <div class="h-28 bg-gradient-to-r from-green-500 to-green-600 relative">
+                <!-- All Organizations Section -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Browse All Organizations</h2>
+                            <p class="text-gray-500">Find and join student organizations</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for org in all_orgs %}
+                        <div class="org-card block bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer">
+                            <div class="h-28 bg-gradient-to-r from-blue-500 to-blue-600 relative">
                                 <div class="absolute inset-0 bg-black bg-opacity-10"></div>
                             </div>
                             <div class="p-6">
                                 <div class="flex items-start justify-between mb-4">
                                     <div class="w-12 h-12 bg-white rounded-xl shadow-lg flex items-center justify-center -mt-6 border-4 border-white">
-                                        <i class="fas fa-seedling text-green-600 text-xl"></i>
+                                        <i class="fas fa-users text-blue-600 text-xl"></i>
                                     </div>
-                                    <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Environmental</span>
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">{{ org.name }}</span>
                                 </div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-2">Green Campus Initiative</h3>
-                                <p class="text-gray-600 text-sm mb-4">Working towards a sustainable and eco-friendly campus environment</p>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">{{ org.name }}</h3>
+                                <p class="text-gray-600 text-sm mb-4">{{ org.description }}</p>
                                 <div class="flex items-center justify-between text-sm text-gray-500">
                                     <span class="flex items-center space-x-1">
                                         <i class="fas fa-users"></i>
-                                        <span>94 members</span>
-                                    </span>
-                                    <span class="flex items-center space-x-1">
-                                        <i class="fas fa-calendar"></i>
-                                        <span>3 events</span>
+                                        <span>{{ org.members.count }} members</span>
                                     </span>
                                 </div>
+                                <a href="{% url 'org_overview' org.id %}" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition block text-center">View Details</a>
+                                {% if org not in user_orgs %}
+                                <form method="POST" action="{% url 'join_org' org.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition w-full">Join</button>
+                                </form>
+                                {% else %}
+                                <span class="mt-2 px-4 py-2 bg-gray-200 text-gray-600 rounded-lg block text-center">Already a member</span>
+                                {% endif %}
                             </div>
-                        </a>
-
-                        <!-- Organization Card 3 -->
-                        <a href="{% url 'orgpage' %}" class="org-card block bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer">
-                            <div class="h-28 bg-gradient-to-r from-purple-500 to-purple-600 relative">
-                                <div class="absolute inset-0 bg-black bg-opacity-10"></div>
-                            </div>
-                            <div class="p-6">
-                                <div class="flex items-start justify-between mb-4">
-                                    <div class="w-12 h-12 bg-white rounded-xl shadow-lg flex items-center justify-center -mt-6 border-4 border-white">
-                                        <i class="fas fa-basketball-ball text-purple-600 text-xl"></i>
-                                    </div>
-                                    <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full">Sports</span>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-800 mb-2">Basketball Club</h3>
-                                <p class="text-gray-600 text-sm mb-4">Building teamwork and sportsmanship through basketball</p>
-                                <div class="flex items-center justify-between text-sm text-gray-500">
-                                    <span class="flex items-center space-x-1">
-                                        <i class="fas fa-users"></i>
-                                        <span>76 members</span>
-                                    </span>
-                                    <span class="flex items-center space-x-1">
-                                        <i class="fas fa-calendar"></i>
-                                        <span>8 events</span>
-                                    </span>
-                                </div>
-                            </div>
-                        </a>
+                        </div>
+                        {% empty %}
+                        <p class="text-gray-500">No organizations available.</p>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -259,58 +246,9 @@
                 <div>
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-2xl font-bold text-gray-800">Upcoming Events</h2>
-                        <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">View All →</a>
+                        <span class="text-gray-400 italic">Coming soon</span>
                     </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Event Card 1 -->
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <div class="flex items-start space-x-4">
-                                <div class="bg-blue-100 rounded-lg p-4 text-center min-w-[80px]">
-                                    <p class="text-3xl font-bold text-blue-600">28</p>
-                                    <p class="text-sm text-blue-600 font-medium">SEP</p>
-                                </div>
-                                <div class="flex-1">
-                                    <h3 class="text-lg font-bold text-gray-800 mb-2">Tech Club Meeting</h3>
-                                    <p class="text-sm text-gray-500 mb-3">Computer Science Society</p>
-                                    <div class="space-y-1 text-sm text-gray-600">
-                                        <p class="flex items-center space-x-2">
-                                            <i class="far fa-clock text-gray-400"></i>
-                                            <span>3:00 PM - 5:00 PM</span>
-                                        </p>
-                                        <p class="flex items-center space-x-2">
-                                            <i class="fas fa-map-marker-alt text-gray-400"></i>
-                                            <span>Engineering Building, Room 203</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Event Card 2 -->
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <div class="flex items-start space-x-4">
-                                <div class="bg-green-100 rounded-lg p-4 text-center min-w-[80px]">
-                                    <p class="text-3xl font-bold text-green-600">30</p>
-                                    <p class="text-sm text-green-600 font-medium">SEP</p>
-                                </div>
-                                <div class="flex-1">
-                                    <h3 class="text-lg font-bold text-gray-800 mb-2">Campus Cleanup Drive</h3>
-                                    <p class="text-sm text-gray-500 mb-3">Green Campus Initiative</p>
-                                    <div class="space-y-1 text-sm text-gray-600">
-                                        <p class="flex items-center space-x-2">
-                                            <i class="far fa-clock text-gray-400"></i>
-                                            <span>8:00 AM - 12:00 PM</span>
-                                        </p>
-                                        <p class="flex items-center space-x-2">
-                                            <i class="fas fa-map-marker-alt text-gray-400"></i>
-                                            <span>Main Campus Grounds</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Next sprint: dynamically list upcoming events here -->
                 </div>
             </div>
         </main>

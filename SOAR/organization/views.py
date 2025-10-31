@@ -11,6 +11,7 @@ import json
 from .models import Organization, OrganizationMember, Program
 from .serializers import OrganizationSerializer, OrganizationMemberSerializer, ProgramSerializer
 from .permissions import IsOrgOfficerOrAdviser
+from django.core.mail import send_mail
 
 
 def organization_detail(request, org_id):
@@ -71,6 +72,15 @@ class OrganizationMemberViewSet(viewsets.ModelViewSet):
         member = self.get_object()
         promoter = request.user
 
+        # Restrict to only admins and leaders
+        if not (promoter.is_superuser or promoter.is_staff):
+            promoter_record = OrganizationMember.objects.filter(
+                organization=member.organization,
+                student=promoter
+            ).first()
+            if not promoter_record or promoter_record.role != "Leader":
+                return Response({'error': 'Only leaders or admins can promote members.'}, status=status.HTTP_403_FORBIDDEN)
+
         try:
             member.promote(promoter=promoter)
             return Response({
@@ -95,6 +105,15 @@ class OrganizationMemberViewSet(viewsets.ModelViewSet):
         member = self.get_object()
         demoter = request.user
 
+        # Restrict to only admins and leaders
+        if not (demoter.is_superuser or demoter.is_staff):
+            demoter_record = OrganizationMember.objects.filter(
+                organization=member.organization,
+                student=demoter
+            ).first()
+            if not demoter_record or demoter_record.role != "Leader":
+                return Response({'error': 'Only leaders or admins can demote members.'}, status=status.HTTP_403_FORBIDDEN)
+
         try:
             member.demote(demoter=demoter)
             return Response({
@@ -109,6 +128,39 @@ class OrganizationMemberViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'error': f'Unexpected error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['post'])
+    def approve(self, request, pk=None):
+        """Approve a join request and notify the user by email."""
+        member = self.get_object()
+        if member.is_approved:
+            return Response({'error': 'Already approved.'}, status=status.HTTP_400_BAD_REQUEST)
+        member.is_approved = True
+        member.save()
+        send_mail(
+            subject=f"Accepted to {member.organization.name}",
+            message=f"Congratulations! You have been accepted as a member of {member.organization.name}.",
+            from_email=None,
+            recipient_list=[member.student.email],
+            fail_silently=True,
+        )
+        return Response({'status': 'success', 'message': 'Member approved and notified.'})
+
+    @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        """Reject a join request and notify the user by email."""
+        member = self.get_object()
+        if member.is_approved:
+            return Response({'error': 'Already approved.'}, status=status.HTTP_400_BAD_REQUEST)
+        send_mail(
+            subject=f"Application to {member.organization.name} Rejected",
+            message=f"We regret to inform you that your request to join {member.organization.name} was not approved.",
+            from_email=None,
+            recipient_list=[member.student.email],
+            fail_silently=True,
+        )
+        member.delete()
+        return Response({'status': 'success', 'message': 'Member rejected and notified.'})
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -126,9 +178,19 @@ def organization_page(request):
 
 
 @login_required
-def orgpage(request):
-    organization = Organization.objects.first() if Organization.objects.exists() else None
-    return render(request, 'organization/orgpage.html', {'organization': organization})
+def orgpage(request, org_id):
+    organization = get_object_or_404(Organization, id=org_id)
+    user_role = None
+    if request.user.is_authenticated:
+        try:
+            org_member = OrganizationMember.objects.get(student=request.user, organization=organization)
+            user_role = org_member.role
+        except OrganizationMember.DoesNotExist:
+            user_role = None
+    return render(request, 'organization/orgpage.html', {
+        'organization': organization,
+        'user_role': user_role,
+    })
 
 
 @login_required
@@ -249,15 +311,15 @@ def demote_member(request, member_id):
 
     try:
         member = OrganizationMember.objects.get(id=member_id)
-        promoter = request.user  # the one performing the action
+        demoter = request.user  # the one performing the action
 
-        # Check permissions
-        if not (promoter.is_superuser or promoter.is_staff):
-            promoter_record = OrganizationMember.objects.filter(
+        # Check permissions: only admins and leaders
+        if not (demoter.is_superuser or demoter.is_staff):
+            demoter_record = OrganizationMember.objects.filter(
                 organization=member.organization,
-                student=promoter
+                student=demoter
             ).first()
-            if not promoter_record or promoter_record.role != "Leader":
+            if not demoter_record or demoter_record.role != "Leader":
                 return JsonResponse({"error": "Only leaders or admins can demote members."}, status=403)
 
         # Demotion logic
