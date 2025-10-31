@@ -90,7 +90,7 @@ if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(
             DATABASE_URL,
-            conn_max_age=600,  # keep-alive for performance
+            conn_max_age=0,  # keep-alive for performance
             ssl_require=True   # Supabase requires SSL
         )
     }
@@ -138,7 +138,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # for global static files (if you have any)
+]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
