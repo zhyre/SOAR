@@ -83,71 +83,8 @@
     <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
 
     <div class="flex h-screen overflow-hidden">
-        <!-- Collapsible Sidebar -->
-       <aside id="sidebar" class="sidebar bg-[#0f172a] text-white w-64 flex-shrink-0 overflow-y-auto">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-8">
-                    <div class="flex items-center space-x-3">
-                        <div class="flex items-center justify-center">
-                            <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR Logo" class="h-8 w-auto">
-                        </div>
-                        <span class="logo-text text-xl font-bold text-white"></span>
-                    </div>
-                    <button id="sidebarToggle" class="hidden md:block p-2 hover:bg-blue-500 rounded-lg transition">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
-
-                <!-- Organization Info -->
-                <div class="mb-8 pb-6 border-b border-blue-500">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                            <i class="fas fa-users text-blue-600 text-lg"></i>
-                        </div>
-                        <div class="sidebar-text">
-                            <h3 class="font-semibold text-sm">{{ organization.name|default:"Computer Science Society" }}</h3>
-                            <p class="text-blue-200 text-xs">{{ organization.members.count }} member{{ organization.members.count|pluralize }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Navigation -->
-                <nav class="space-y-2">
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-blue-500 bg-opacity-50 hover:bg-opacity-70 transition">
-                        <i class="fas fa-home text-lg"></i>
-                        <span class="sidebar-text font-medium">Feed</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                        <i class="fas fa-calendar-alt text-lg"></i>
-                        <span class="sidebar-text font-medium">Events</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                        <i class="fas fa-bullhorn text-lg"></i>
-                        <span class="sidebar-text font-medium">Announcements</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                        <i class="fas fa-user-friends text-lg"></i>
-                        <span class="sidebar-text font-medium">Members</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                        <i class="fas fa-images text-lg"></i>
-                        <span class="sidebar-text font-medium">Gallery</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                        <i class="fas fa-cog text-lg"></i>
-                        <span class="sidebar-text font-medium">Settings</span>
-                    </a>
-                </nav>
-
-                <!-- Back to Dashboard -->
-                <div class="mt-8 pt-6 border-t border-blue-500">
-                    <a href="{% url 'index' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                        <i class="fas fa-arrow-left text-lg"></i>
-                        <span class="sidebar-text font-medium">Back to Dashboard</span>
-                    </a>
-                </div>
-            </div>
-        </aside>
+        <!-- Organization Sidebar -->
+        {% include 'base/sidebar_components.html' with sidebar_type='organization' %}
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
@@ -220,16 +157,15 @@
                     <div class="flex flex-col md:flex-row items-center md:items-end space-y-4 md:space-y-0 md:space-x-6">
                         <!-- Organization Photo -->
                         <div class="relative group">
-                            <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                                <img src="{% static 'organization/images/org-default.png' %}" 
-                                     alt="{{ organization.name }} Logo" 
-                                     class="w-full h-full object-cover"
-                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ organization.name|urlencode }}&background=2563eb&color=fff&size=256'">
+                            <div class="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg bg-white p-2">
+                                <img src="{% static 'accounts/soar-logo.png' %}" 
+                                     alt="SOAR Logo" 
+                                     class="w-full h-full object-contain"
+                                     data-fallback-src="{% static 'accounts/soar-logo.png' %}">
                             </div>
                             <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button class="p-2 bg-white bg-opacity-80 rounded-full text-blue-600 hover:bg-white">
-                                    <i class="fas fa-camera"></i>
-                                </button>
+                                    <i class="fas fa-camera"></i></button>
                             </div>
                         </div>
                         
@@ -255,36 +191,121 @@
             <!-- Content Area -->
             <main class="flex-1 overflow-y-auto p-4 md:p-8">
                 <!-- Create Post Card -->
-                {% if user_role in "admin,officer,leader" %}
-                <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-gray-100">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Create New Activity</h3>
-                    <form id="activityForm" class="space-y-4">
-                        <div class="form-group">
-                            <label for="activityTitle" class="block text-sm font-medium text-gray-700 mb-1">Activity Title *</label>
-                            <input type="text" id="activityTitle" name="title" 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Enter activity title" required>
-                            <div id="titleError" class="text-red-500 text-sm mt-1 hidden">Title is required</div>
+                 {% if user_role in "admin,officer,leader" %}
+                <div class="bg-white rounded-2xl shadow-sm p-8 mb-8 border border-gray-100 transition-all duration-300 hover:shadow-md">
+                    <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">Create New Activity</h3>
+                            <p class="text-sm text-gray-500 mt-1">Fill in the details to schedule a new activity</p>
                         </div>
+                        <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <form id="activityForm" class="space-y-6">
+                        <!-- Activity Title -->
                         <div class="form-group">
-                            <label for="activityDescription" class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
-                            <textarea id="activityDescription" name="description" rows="3"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                                    placeholder="Describe the activity (max 500 characters)" maxlength="500" required></textarea>
-                            <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                <div id="descriptionError" class="text-red-500 hidden">Description is required</div>
-                                <span id="charCount">0/500</span>
+                            <label for="activityTitle" class="block text-sm font-medium text-gray-700 mb-2">Activity Title</label>
+                            <input type="text" id="activityTitle" name="title" 
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                placeholder="Enter activity title" required>
+                        </div>
+                        
+                        <!-- Activity Description -->
+                        <div class="form-group">
+                            <label for="activityDescription" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <textarea id="activityDescription" name="description" rows="4"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+                                placeholder="Describe the activity in detail" required></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Date -->
+                            <div class="form-group">
+                                <label for="activityDate" class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                                <input type="date" id="activityDate" name="date" 
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                    required>
+                            </div>
+                            
+                            <!-- Time -->
+                            <div class="form-group">
+                                <label for="activityTime" class="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                                <input type="time" id="activityTime" name="time" 
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                    required>
+                            </div>
+                            
+                            <!-- Location -->
+                            <div class="form-group">
+                                <label for="activityLocation" class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                <input type="text" id="activityLocation" name="location" 
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                    placeholder="Enter location" required>
+                            </div>
+                            
+                            <!-- Activity Type -->
+                            <div class="form-group">
+                                <label for="activityType" class="block text-sm font-medium text-gray-700 mb-2">Activity Type</label>
+                                <div class="relative">
+                                    <select id="activityType" name="type" 
+                                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white transition-all duration-200">
+                                        <option value="">Select activity type</option>
+                                        <option value="workshop">Workshop</option>
+                                        <option value="seminar">Seminar</option>
+                                        <option value="meeting">Meeting</option>
+                                        <option value="social">Social Event</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Max Participants -->
+                            <div class="form-group">
+                                <label for="maxParticipants" class="block text-sm font-medium text-gray-700 mb-2">Max Participants</label>
+                                <input type="number" id="maxParticipants" name="max_participants" min="1"
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                    placeholder="No limit">
+                            </div>
+                            
+                            <!-- Attachments -->
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Attachments</label>
+                                <div class="relative">
+                                    <label class="flex flex-col w-full h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-blue-300 group transition-all duration-200 hover:bg-blue-50">
+                                        <div class="flex flex-col items-center justify-center h-full pt-2">
+                                            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-2 group-hover:bg-blue-100 transition-colors duration-200">
+                                                <i class="fas fa-cloud-upload-alt text-blue-500 text-lg"></i>
+                                            </div>
+                                            <p class="text-sm text-gray-500 group-hover:text-blue-500 transition-colors duration-200">
+                                                <span class="font-medium text-blue-600">Upload files</span> or drag and drop
+                                            </p>
+                                            <p class="text-xs text-gray-400 mt-1">PNG, JPG, PDF up to 10MB</p>
+                                        </div>
+                                        <input type="file" class="hidden" multiple>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex justify-end">
-                            <button type="submit" class="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:opacity-90 transition-all transform hover:scale-[1.02] font-medium shadow-md">
+                        
+                        <!-- Form Actions -->
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100 mt-8">
+                            <button type="button" class="px-6 py-2.5 border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                                Cancel
+                            </button>
+                            <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 flex items-center">
+                                <i class="fas fa-paper-plane mr-2 text-sm"></i>
                                 Post Activity
                             </button>
                         </div>
                     </form>
                 </div>
                 {% endif %}
-
+               
                 <!-- Add this where you want the activities to appear -->
                 <div id="activitiesList" class="space-y-6">
                     <!-- Activities will be dynamically inserted here -->
@@ -304,141 +325,8 @@
                 </div>
 
                 <!-- Feed Posts -->
-                <div class="space-y-6">
-                    <!-- Pinned Post -->
-                    <div class="relative group">
-                        <div class="absolute -left-2 top-0 bottom-0 w-1 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition"></div>
-                        <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-blue-50 transform transition-all duration-300 hover:shadow-md">
-                            <div class="p-6">
-                                <div class="flex items-start justify-between mb-4">
-                                    <div class="flex items-start space-x-3">
-                                        <img src="https://ui-avatars.com/api/?name=Sarah+Johnson&background=10b981&color=fff" 
-                                             alt="Sarah Johnson" 
-                                             class="w-12 h-12 rounded-xl border-2 border-white shadow-sm">
-                                        <div>
-                                            <div class="flex items-center space-x-2">
-                                                <h3 class="font-semibold text-gray-800">Sarah Johnson</h3>
-                                                <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded-full">
-                                                    <i class="fas fa-thumbtack text-xs mr-1"></i> Pinned
-                                                </span>
-                                            </div>
-                                            <p class="text-sm text-gray-500 flex items-center">
-                                                <span>President</span>
-                                                <span class="mx-1">•</span>
-                                                <span>2h ago</span>
-                                                <span class="mx-1">•</span>
-                                                <i class="fas fa-globe-americas text-xs"></i>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <button class="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                            </div>
-                            <p class="text-gray-700 mb-4">
-                                Excited to announce our upcoming Hackathon 2024! 🚀 Register now and showcase your coding skills. 
-                                Prizes worth $5000 await the winners!
-                            </p>
-                            <div class="flex items-center space-x-6 pt-4 border-t border-gray-100">
-                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
-                                    <i class="far fa-heart"></i>
-                                    <span>24</span>
-                                </button>
-                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
-                                    <i class="far fa-comment"></i>
-                                    <span>8</span>
-                                </button>
-                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
-                                    <i class="far fa-share-square"></i>
-                                    <span>Share</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Post Card 2 -->
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="p-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center space-x-3">
-                                    <img src="https://ui-avatars.com/api/?name=Michael+Chen&background=f59e0b&color=fff" 
-                                         alt="Michael Chen" 
-                                         class="w-12 h-12 rounded-full">
-                                    <div>
-                                        <h3 class="font-semibold text-gray-800">Michael Chen</h3>
-                                        <p class="text-sm text-gray-500">Vice President • 5 hours ago</p>
-                                    </div>
-                                </div>
-                                <button class="p-2 hover:bg-gray-100 rounded-lg">
-                                    <i class="fas fa-ellipsis-h text-gray-500"></i>
-                                </button>
-                            </div>
-                            <p class="text-gray-700 mb-4">
-                                Great turnout at yesterday's workshop! Thanks to everyone who attended. 
-                                Looking forward to our next session on Machine Learning fundamentals.
-                            </p>
-                            <div class="grid grid-cols-2 gap-2 mb-4">
-                                <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400" 
-                                     alt="Workshop" 
-                                     class="w-full h-48 object-cover rounded-lg">
-                                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400" 
-                                     alt="Workshop" 
-                                     class="w-full h-48 object-cover rounded-lg">
-                            </div>
-                            <div class="flex items-center space-x-6 pt-4 border-t border-gray-100">
-                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
-                                    <i class="far fa-heart"></i>
-                                    <span>42</span>
-                                </button>
-                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
-                                    <i class="far fa-comment"></i>
-                                    <span>15</span>
-                                </button>
-                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
-                                    <i class="far fa-share-square"></i>
-                                    <span>Share</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Post Card 3 -->
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="p-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
-                                        CS
-                                    </div>
-                                    <div>
-                                        <h3 class="font-semibold text-gray-800">Computer Science Society</h3>
-                                        <p class="text-sm text-gray-500">Official • Yesterday</p>
-                                    </div>
-                                </div>
-                                <button class="p-2 hover:bg-gray-100 rounded-lg">
-                                    <i class="fas fa-ellipsis-h text-gray-500"></i>
-                                </button>
-                            </div>
-                            <p class="text-gray-700 mb-4">
-                                📢 Important: General Assembly meeting scheduled for next Friday at 3 PM. 
-                                All members are encouraged to attend. We'll be discussing upcoming events and initiatives.
-                            </p>
-                            <div class="flex items-center space-x-6 pt-4 border-t border-gray-100">
-                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
-                                    <i class="far fa-heart"></i>
-                                    <span>18</span>
-                                </button>
-                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
-                                    <i class="far fa-comment"></i>
-                                    <span>5</span>
-                                </button>
-                                <button class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition">
-                                    <i class="far fa-share-square"></i>
-                                    <span>Share</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="space-y-6" id="activityFeed">
+                    <!-- Pinned Posts will be dynamically inserted here -->
                 </div>
             </main>
         </div>

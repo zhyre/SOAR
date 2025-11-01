@@ -1,16 +1,16 @@
 :root {
-  --auth-bg-start: #3a57ad;
-  --auth-bg-mid: #0B2F6B;
-  --auth-bg-end: #6b84a9;
-  --panel-gradient-start: #0F172A;
-  --panel-gradient-end: #1E3A8A;
+  --auth-bg-start: rgba(18, 58, 143, 0.9);
+  --auth-bg-mid: rgba(13, 42, 110, 0.9);
+  --auth-bg-end: rgba(18, 58, 143, 0.7);
+  --panel-gradient-start: rgba(18, 58, 143, 0.9);
+  --panel-gradient-end: rgba(18, 58, 143, 0.7);
   --panel-text: #F8FAFC;
   --form-bg: #ffffff;
   --form-shadow: 0 20px 60px rgba(2,6,23,.12);
-  --primary: #0B5DD8;
-  --primary-2: #1570EF;
+  --primary: rgba(18, 58, 143, 0.9);
+  --primary-2: rgba(18, 58, 143, 0.8);
   --input-border: #e5e7eb;
-  --input-focus: #1D4ED8;
+  --input-focus: rgba(18, 58, 143, 0.7);
   --success: #1a9953;
   --success-bg: #d4f7e1;
   --error: #c53030;
@@ -20,42 +20,39 @@
 *{
   box-sizing:border-box;
 }
-
-html,body{
-  height:100%;
+html {
+    background: linear-gradient(
+                rgba(18, 58, 143, 0.9),
+                rgba(13, 42, 110, 0.9)
+              ),
+              url('/static/images/bg-campus.png') no-repeat center center fixed;
+    background-size: cover;
+    background-attachment: fixed;
+    min-height: 100%;
 }
 
 body {
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background-color: #0f1c3a;
-  background-image:
-    linear-gradient(145deg, rgba(15,28,58,.78), rgba(29,53,87,.72), rgba(13,71,161,.72)),
-    url('/static/accounts/bg-campus.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  display: grid;
-  place-items: center;
-  position: relative;
-  overflow: hidden;
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #102444;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
 }
 
+
 body::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(900px 540px at 18% 20%, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
-    radial-gradient(1200px 700px at 80% 85%, rgba(0,0,0,.20), rgba(0,0,0,0) 60%);
-  animation: bg-pulse 20s infinite alternate ease-in-out;
-  pointer-events: none;
+  content: none;
 }
 
 .auth-card {
   width: min(95%, 1200px);
   min-height: 560px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: var(--form-shadow);
@@ -102,7 +99,7 @@ body::before {
   position: relative;
   padding: 40px 36px;
   color: var(--panel-text);
-  background: linear-gradient(160deg, rgba(28,42,77,.92) 0%, rgba(45,69,114,.92) 100%);
+  background: linear-gradient(135deg, rgba(18, 58, 143, 0.95) 0%, rgba(18, 58, 143, 0.7) 100%);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -185,7 +182,7 @@ body::before {
   right: 0;
   bottom: 0;
   left: 0;
-  background: radial-gradient(circle at top right, rgba(29, 78, 216, 0.05), transparent 70%);
+  background: radial-gradient(circle at top right, rgba(18, 58, 143, 0.05), transparent 70%);
   z-index: 0;
 }
 
@@ -409,8 +406,8 @@ body::before {
   border-radius: 8px;
   color: white;
   cursor: pointer;
-  background: linear-gradient(90deg, #2563eb, #3b82f6);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+  background: linear-gradient(90deg, rgba(18, 58, 143, 0.9), rgba(18, 58, 143, 0.7));
+  box-shadow: 0 2px 8px rgba(18, 58, 143, 0.2);
   transition: all 0.3s ease;
   font-size: 1rem;
   font-weight: 600;
@@ -426,8 +423,8 @@ body::before {
 }
 
 .btn-primary:hover {
-  background: linear-gradient(90deg, #1d4ed8, #2563eb);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  background: linear-gradient(90deg, rgba(13, 42, 110, 0.9), rgba(18, 58, 143, 0.9));
+  box-shadow: 0 4px 12px rgba(18, 58, 143, 0.3);
   transform: scale(1.05);
 }
 

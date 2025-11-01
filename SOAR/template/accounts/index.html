@@ -40,51 +40,7 @@
 
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar bg-[#0F172A] text-white w-64 flex-shrink-0 overflow-y-auto">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-8">
-                    <div class="flex items-center space-x-3">
-                        <img src="{% static 'accounts/soar-logo.png' %}" alt="SOAR Logo" class="h-8 w-auto">
-                        <span class="text-xl font-bold"></span>
-                    </div>
-                </div>
-
-                <!-- Navigation -->
-                <nav class="space-y-2">
-                    <a href="{% url 'index' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-blue-500 bg-opacity-50 hover:bg-opacity-70 transition">
-                        <i class="fas fa-home text-lg mt-1.5"></i>
-                        <span class="font-medium">Dashboard</span>
-                    </a>
-                    <a href="{% url 'profile' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                        <i class="fas fa-user text-lg mt-1.5"></i>
-                        <span class="font-medium">My Profile</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                        <i class="fas fa-calendar-check text-lg mt-1.5"></i>
-                        <span class="font-medium">My Events</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                        <i class="fas fa-bullhorn text-lg mt-1.5"></i>
-                        <span class="font-medium">Announcements</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                        <i class="fas fa-cog text-lg mt-1.5"></i>
-                        <span class="font-medium">Settings</span>
-                    </a>
-                </nav>
-
-                <!-- Logout -->
-                <div class="mt-8 pt-6 border-t border-blue-500">
-                    <form method="POST" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-500 hover:bg-opacity-50 transition">
-                            <i class="fas fa-sign-out-alt text-lg"></i>
-                            <span class="font-medium">Logout</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </aside>
+        {% include 'base/sidebar_components.html' with sidebar_type='dashboard' %}
 
         <!-- Main Content -->
         <main class="flex-1 flex flex-col overflow-hidden">
