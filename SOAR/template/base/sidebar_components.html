@@ -1,0 +1,153 @@
+{% load static %}
+
+<!-- Main Dashboard Sidebar (Tailwind) -->
+{% if sidebar_type == 'dashboard' %}
+<aside id="sidebar" class="sidebar bg-[#0F172A] text-white w-64 flex-shrink-0 overflow-y-auto">
+    <div class="p-6">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center space-x-3">
+               <img src="{% static 'images/soar-logo.png' %}" alt="SOAR Logo" class="h-10 w-auto">
+                <span class="text-xl font-bold"></span>
+            </div>
+        </div>
+
+        <nav class="space-y-2">
+            <a href="{% url 'index' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'index' %}bg-[rgba(61,131,245,0.674)]{% else %}hover:bg-[rgba(61,131,245,0.674)]{% endif %} transition duration-200 ease-in-out">
+                <i class="fas fa-home text-lg mt-1.5"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            <a href="{% url 'profile' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'profile' %}bg-[rgba(61,131,245,0.674)]{% else %}hover:bg-[rgba(61,131,245,0.674)]{% endif %} transition duration-200 ease-in-out">
+                <i class="fas fa-user text-lg mt-1.5"></i>
+                <span class="font-medium">My Profile</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[rgba(61,131,245,0.674)] transition duration-200 ease-in-out">
+                <i class="fas fa-calendar-check text-lg mt-1.5"></i>
+                <span class="font-medium">My Events</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[rgba(61,131,245,0.674)] transition duration-200 ease-in-out">
+                <i class="fas fa-bullhorn text-lg mt-1.5"></i>
+                <span class="font-medium">Announcements</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[rgba(61,131,245,0.674)] transition duration-200 ease-in-out">
+                <i class="fas fa-cog text-lg mt-1.5"></i>
+                <span class="font-medium">Settings</span>
+            </a>
+        </nav>
+
+        <div class="mt-8 pt-6 border-t border-blue-500">
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[rgba(61,131,245,0.674)] transition duration-200 ease-in-out">
+                    <i class="fas fa-sign-out-alt text-lg"></i>
+                    <span class="font-medium">Logout</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
+
+<!-- Organization Sidebar -->
+{% elif sidebar_type == 'organization' %}
+<aside id="sidebar" class="sidebar bg-[#0f172a] text-white w-64 flex-shrink-0 overflow-y-auto">
+    <div class="p-6">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center justify-center">
+                    <img src="{% static 'images/soar-logo.png' %}" alt="SOAR Logo" class="h-12 w-12">
+                </div>
+                <span class="logo-text text-xl font-bold text-white"></span>
+            </div>
+            <button id="sidebarToggle" class="hidden md:block p-2 hover:bg-[rgba(61,131,245,0.674)] rounded-lg transition duration-200 ease-in-out">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Organization Info -->
+        <div class="mb-8 pb-6 border-b border-blue-500">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                    <i class="fas fa-users text-blue-600 text-lg"></i>
+                </div>
+                <div class="sidebar-text">
+                    <h3 class="font-semibold text-sm">{{ organization.name|default:"Organization" }}</h3>
+                    <p class="text-blue-200 text-xs">{{ organization.members.count }} member{{ organization.members.count|pluralize }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="space-y-2">
+            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg {% if request.resolver_match.url_name == 'orgpage' %}bg-[rgba(61,131,245,0.674)]{% else %}hover:bg-[rgba(61,131,245,0.674)]{% endif %} transition duration-200 ease-in-out">
+                <i class="fas fa-home text-lg"></i>
+                <span class="sidebar-text font-medium">Feed</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[rgba(61,131,245,0.674)] transition duration-200 ease-in-out">
+                <i class="fas fa-calendar-alt text-lg"></i>
+                <span class="sidebar-text font-medium">Events</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[rgba(61,131,245,0.674)] transition duration-200 ease-in-out">
+                <i class="fas fa-bullhorn text-lg"></i>
+                <span class="sidebar-text font-medium">Announcements</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[rgba(61,131,245,0.674)] transition duration-200 ease-in-out">
+                <i class="fas fa-user-friends text-lg"></i>
+                <span class="sidebar-text font-medium">Members</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[rgba(61,131,245,0.674)] transition duration-200 ease-in-out">
+                <i class="fas fa-images text-lg"></i>
+                <span class="sidebar-text font-medium">Gallery</span>
+            </a>
+            <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[rgba(61,131,245,0.674)] transition duration-200 ease-in-out">
+                <i class="fas fa-cog text-lg"></i>
+                <span class="sidebar-text font-medium">Settings</span>
+            </a>
+        </nav>
+
+        <!-- Back to Dashboard -->
+        <div class="mt-8 pt-6 border-t border-blue-500">
+            <a href="{% url 'index' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[rgba(61,131,245,0.674)] transition">
+                <i class="fas fa-arrow-left text-lg"></i>
+                <span class="font-medium">Back to Dashboard</span>
+    </div>
+</aside>
+
+<!-- Default Sidebar (Legacy) -->
+{% else %}
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <img src="{% static 'images/soar-logo.png' %}" alt="SOAR Logo" class="logo">
+        <h2></h2>
+        <span class="sidebar-close"><i class="fas fa-times"></i></span>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="{% url 'index' %}" class="nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="{% url 'profile' %}" class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <i class="fas fa-user"></i>
+            <span>My Profile</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>My Events</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-bullhorn"></i>
+            <span>Announcements</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <a href="#" class="nav-item" onclick="document.getElementById('logout-form').submit(); return false;">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+    </a>
+    <form id="logout-form" method="POST" action="{% url 'logout' %}" style="display: none;">
+        {% csrf_token %}
+    </form>
+</aside>
+{% endif %}

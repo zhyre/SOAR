@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -7,7 +6,7 @@
     <title>SOAR - Student Organizations & Activities</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -15,18 +14,35 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
-                    colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 8s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'scale-in': 'scaleIn 0.5s ease-out',
+                        'gradient': 'gradient 8s ease infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(30px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        scaleIn: {
+                            '0%': { transform: 'scale(0.9)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                        gradient: {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
                         },
                     },
                 }
@@ -34,70 +50,41 @@
         }
     </script>
     <style>
-        /* Keyframe Animations */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            100% { transform: translateY(-10px); }
-        }
-
-        @keyframes fadeInUp {
-            from { 
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes slideInRight {
-            from { 
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to { 
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        /* Utility Classes */
-        .animate-fadeInUp {
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-
-        .animate-slideInRight {
-            animation: slideInRight 0.3s ease-out forwards;
-        }
-
-        .gradient-bg {
-            background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);
+        /* Advanced gradient mesh background - Blue theme */
+        .gradient-mesh {
+            background: linear-gradient(135deg, #0F172A 0%, #1E40AF 50%, #1E3A8A 100%);
             position: relative;
             overflow: hidden;
         }
 
-        .gradient-bg::before {
+        .gradient-mesh::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(56, 182, 255, 0.1) 0%, rgba(30, 58, 138, 0) 70%);
-            animation: rotate 15s linear infinite;
-            transform-origin: center center;
+            top: -50%;
+            left: -50%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(96, 165, 250, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(37, 99, 235, 0.4) 0%, transparent 50%);
+            animation: spin-slow 20s linear infinite;
         }
 
+        @keyframes spin-slow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced feature cards with 3D effect - Blue theme */
         .feature-card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 1rem;
-            overflow: hidden;
             position: relative;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 1.5rem;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+            transform-style: preserve-3d;
         }
 
         .feature-card::before {
@@ -108,348 +95,592 @@
             right: 0;
             bottom: 0;
             background: radial-gradient(
-                800px circle at var(--mouse-x) var(--mouse-y),
-                rgba(99, 102, 241, 0.1),
+                800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(59, 130, 246, 0.12),
                 transparent 40%
             );
             opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
+            transition: opacity 0.4s ease;
             z-index: 1;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
         }
 
         .feature-card:hover::before {
             opacity: 1;
         }
 
-        .testimonial-card {
-            transition: all 0.3s ease;
-            background: white;
-            border-radius: 1rem;
-            overflow: hidden;
+        .feature-card:hover {
+            transform: translateY(-16px) scale(1.02);
+            box-shadow: 
+                0 25px 50px -12px rgba(59, 130, 246, 0.25),
+                0 0 0 1px rgba(59, 130, 246, 0.1);
+        }
+
+        .feature-card-content {
             position: relative;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+            z-index: 2;
         }
 
-        .testimonial-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.1);
+        /* Enhanced icon animations */
+        .icon-wrapper {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
 
-        .btn-primary {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .feature-card:hover .icon-wrapper {
+            transform: scale(1.15) rotate(-5deg);
+        }
+
+        .icon-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            background: inherit;
+            filter: blur(20px);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            border-radius: inherit;
+        }
+
+        .feature-card:hover .icon-wrapper::before {
+            opacity: 0.6;
+        }
+
+        /* Animated gradient text - Blue theme */
+        .text-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #2563eb 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 6s ease infinite;
+        }
+
+        /* Stats number gradient - Blue theme */
+        .stat-number {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Enhanced floating shapes - Blue theme */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+            animation: float 25s ease-in-out infinite;
+        }
+
+        .shape-1 { 
+            top: 10%; 
+            left: 5%; 
+            width: 400px; 
+            height: 400px; 
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            animation-delay: 0s;
+        }
+
+        .shape-2 { 
+            top: 50%; 
+            right: 5%; 
+            width: 500px; 
+            height: 500px; 
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            animation-delay: 5s;
+        }
+
+        .shape-3 { 
+            bottom: 10%; 
+            left: 25%; 
+            width: 350px; 
+            height: 350px; 
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            animation-delay: 10s;
+        }
+
+        /* Custom scrollbar - Blue theme */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 10px;
+            border: 2px solid #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+
+        /* Enhanced button shimmer */
+        .btn-shimmer {
             position: relative;
             overflow: hidden;
-            z-index: 1;
         }
 
-        .btn-primary::after {
+        .btn-shimmer::after {
             content: '';
             position: absolute;
             top: 0;
-            left: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            z-index: -1;
-            transition: transform 0.3s ease;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+            );
+            transition: left 0.6s ease;
         }
 
-        .btn-primary:hover::after {
-            transform: scale(1.05);
+        .btn-shimmer:hover::after {
+            left: 100%;
         }
 
-        .btn-secondary {
-            transition: all 0.3s ease;
+        /* Navigation effects */
+        .nav-link {
             position: relative;
-            overflow: hidden;
-            z-index: 1;
+            transition: all 0.3s ease;
         }
 
-        .btn-secondary::before {
+        .nav-link::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease;
-            z-index: -1;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
         }
 
-        .btn-secondary:hover::before {
-            transform: scaleX(1);
-            transform-origin: left;
+        .nav-link:hover::after {
+            width: 100%;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #0B5DD8 0%, #1D4ED8 100%);
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .animation-delay-2000 {
-            animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-            animation-delay: 4s;
-        }
-        @keyframes blob {
-            0% {
-                transform: translate(0px, 0px) scale(1);
+
+        /* Particle effects */
+        @keyframes particle-float {
+            0%, 100% { 
+                transform: translate(0, 0) scale(1);
+                opacity: 0.6;
             }
-            33% {
-                transform: translate(30px, -50px) scale(1.1);
-            }
-            66% {
-                transform: translate(-20px, 20px) scale(0.9);
-            }
-            100% {
-                transform: translate(0px, 0px) scale(1);
+            50% { 
+                transform: translate(var(--tx), var(--ty)) scale(1.2);
+                opacity: 0.3;
             }
         }
-        .animate-blob {
-            animation: blob 7s infinite;
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-float 15s ease-in-out infinite;
+        }
+
+        /* Enhanced CTA section - Blue theme */
+        .cta-gradient {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #2563eb 100%);
+            background-size: 200% 200%;
+            animation: gradient 8s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-gradient::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
+        }
+
+        /* Mobile menu slide animation */
+        #mobile-menu {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #mobile-menu.hidden {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+
+        /* Glass morphism effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 antialiased">
     <!-- Navigation -->
-    <nav class="bg-gradient-to-r from-blue-900 to-blue-950 text-white shadow-md sticky top-0 z-50">
+    <nav class="bg-gradient-to-r from-blue-900 via-blue-950 to-blue-900 text-white shadow-2xl sticky top-0 z-50 backdrop-blur-lg border-b border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row justify-between items-center py-6 transform transition-all duration-500 ease-in-out hover:scale-[1.01]">
+            <div class="flex justify-between items-center py-4">
                 <!-- Logo -->
-                <div class="flex-shrink-0">
-                    <div class="flex items-center">
-                        <img class="h-10 w-auto" src="{% static 'images/soar-logo.png' %}" alt="SOAR">
-                        <span class="ml-3 text-2xl font-bold text-white"></span>
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center transform hover:scale-105 transition-transform duration-300">
+                        <img class="h-14 w-auto drop-shadow-2xl filter brightness-110" src="../static/images/soar-logo.png" alt="SOAR Logo">
                     </div>
                 </div>
                 
                 <!-- Centered Navigation Links -->
-                <div class="hidden md:flex md:items-center md:space-x-8 absolute left-1/2 transform -translate-x-1/2">
-                    <a href="#features" class="text-white hover:text-gray-200 px-3 py-2 text-sm font-medium transition-colors">Features</a>
-                    <a href="#how-it-works" class="text-white hover:text-gray-200 px-3 py-2 text-sm font-medium transition-colors">How It Works</a>
-                    <a href="#testimonials" class="text-white hover:text-gray-200 px-3 py-2 text-sm font-medium transition-colors">Testimonials</a>
+                <div class="hidden md:flex md:items-center md:space-x-1">
+                    <a href="#features" class="nav-link text-white/90 hover:text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-all duration-300">
+                        Features
+                    </a>
+                    <a href="#how-it-works" class="nav-link text-white/90 hover:text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-all duration-300">
+                        How It Works
+                    </a>
+                    <a href="#about" class="nav-link text-white/90 hover:text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-all duration-300">
+                        About
+                    </a>
+                    <a href="#organizations" class="nav-link text-white/90 hover:text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-white/10 transition-all duration-300">
+                        Organizations
+                    </a>
                 </div>
                 
-                <!-- Right-aligned Auth Buttons -->
-                <div class="flex items-center space-x-4">
-                    <a href="{% url 'login' %}" class="hidden md:block text-white hover:bg-blue-800 px-4 py-2 rounded-md text-sm font-medium transition-colors">Log In</a>
-                    <a href="{% url 'register' %}" class="hidden md:block bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-full text-sm font-medium hover:shadow-md transition-all">Get Started</a>
+                <!-- Auth Buttons -->
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'login' %}" class="hidden md:block text-white/90 hover:text-white hover:bg-white/10 px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 backdrop-blur-sm border border-white/20 hover:border-white/40">
+                        Log In
+                    </a>
+                    <a href="{% url 'register' %}" class="hidden md:block relative bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 btn-shimmer overflow-hidden">
+                        <span class="relative z-10">Get Started</span>
+                    </a>
                 </div>
+                
                 <!-- Mobile menu button -->
                 <div class="md:hidden flex items-center">
-                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 focus:outline-none" id="mobile-menu-button">
+                    <button type="button" class="inline-flex items-center justify-center p-2.5 rounded-xl text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-300" id="mobile-menu-button">
                         <span class="sr-only">Open main menu</span>
-                        <i class="fas fa-bars"></i>
+                        <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
         </div>
+        
         <!-- Mobile menu -->
         <div class="md:hidden hidden" id="mobile-menu">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">Features</a>
-                <a href="#how-it-works" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">How It Works</a>
-                <a href="#testimonials" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">Testimonials</a>
-                <div class="pt-4 pb-3 border-t border-gray-200">
-                    <a href="{% url 'login' %}" class="block w-full text-center px-4 py-2 text-base font-medium text-white hover:bg-blue-800 rounded-md">Log In</a>
-                    <a href="{% url 'register' %}" class="mt-2 block w-full text-center px-4 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700">Get Started</a>
+            <div class="px-4 pt-2 pb-4 space-y-2 bg-blue-950/98 backdrop-blur-xl border-t border-white/10">
+                <a href="#features" class="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/10 transition-all duration-300 hover:pl-6">Features</a>
+                <a href="#how-it-works" class="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/10 transition-all duration-300 hover:pl-6">How It Works</a>
+                <a href="#about" class="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/10 transition-all duration-300 hover:pl-6">About</a>
+                <a href="#organizations" class="block px-4 py-3 rounded-xl text-base font-medium text-white hover:bg-white/10 transition-all duration-300 hover:pl-6">Organizations</a>
+                <div class="pt-4 space-y-3 border-t border-white/20">
+                    <a href="{% url 'login' %}" class="block w-full text-center px-4 py-3 text-base font-medium text-white hover:bg-white/10 rounded-xl transition-all duration-300 border border-white/20">Log In</a>
+                    <a href="{% url 'register' %}" class="block w-full text-center px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg">Get Started</a>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <div class="gradient-bg text-white overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 relative">
-            <!-- Animated background elements -->
-            <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
-                <div class="absolute -top-20 -left-20 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-                <div class="absolute -bottom-8 right-0 w-64 h-64 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-            </div>
-            
-            <div class="relative z-10 md:grid md:grid-cols-2 md:gap-12 items-center">
-                <div class="text-center md:text-left mb-12 md:mb-0">
-                    <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">Empower Your Student Journey with SOAR</h1>
-                    <p class="text-xl text-blue-100 mb-8 max-w-lg mx-auto md:mx-0">Connect, collaborate, and grow with student organizations that match your passions and career goals.</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                        <a href="{% url 'register' %}" class="btn-primary text-white px-8 py-3 rounded-full text-base font-medium inline-flex items-center justify-center hover:shadow-lg transition-all duration-300">
-                            Get Started
-                            <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+    <div class="gradient-mesh text-white overflow-hidden relative min-h-screen flex items-center">
+        <!-- Floating shapes -->
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        
+        <!-- Particles -->
+        <div class="particle w-2 h-2 bg-blue-400 rounded-full" style="top: 20%; left: 15%; --tx: 50px; --ty: 80px; animation-delay: 0s;"></div>
+        <div class="particle w-3 h-3 bg-blue-300 rounded-full" style="top: 60%; left: 80%; --tx: -60px; --ty: -70px; animation-delay: 3s;"></div>
+        <div class="particle w-2 h-2 bg-blue-500 rounded-full" style="top: 40%; left: 70%; --tx: 40px; --ty: -50px; animation-delay: 6s;"></div>
+        <div class="particle w-3 h-3 bg-blue-400 rounded-full" style="top: 80%; left: 20%; --tx: -30px; --ty: 60px; animation-delay: 9s;"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <!-- Left Content -->
+                <div class="text-center lg:text-left space-y-8">
+                    <div class="inline-block animate-fade-in">
+                        <span class="inline-flex items-center gap-2 px-5 py-2.5 glass rounded-full text-sm font-semibold border border-white/30 shadow-lg">
+                            <span class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-400"></span>
+                            </span>
+                            <span class="bg-gradient-to-r from-blue-200 to-blue-100 bg-clip-text text-transparent font-bold">Trusted by 1000+ Students</span>
+                        </span>
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight animate-slide-up">
+                        Empower Your
+                        <span class="block text-gradient mt-3 drop-shadow-lg">Student Journey</span>
+                    </h1>
+                    
+                    <p class="text-xl md:text-2xl text-blue-100/90 max-w-2xl mx-auto lg:mx-0 leading-relaxed animate-slide-up font-light" style="animation-delay: 0.1s;">
+                        Connect, collaborate, and grow with student organizations that match your passions and career goals.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-slide-up" style="animation-delay: 0.2s;">
+                        <a href="#register" class="group relative inline-flex items-center justify-center px-8 py-4 bg-white text-blue-900 rounded-2xl text-base font-bold shadow-2xl hover:shadow-blue-400/50 transition-all duration-500 transform hover:scale-105 overflow-hidden">
+                            <span class="relative z-10 flex items-center gap-2">
+                                Get Started Free
+                                <i class="fas fa-arrow-right transition-transform duration-300 group-hover:translate-x-2"></i>
+                            </span>
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-50 to-blue-100 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
                         </a>
-                        <a href="#how-it-works" class="border-2 border-white text-white hover:bg-white hover:bg-opacity-10 px-8 py-3 rounded-full text-base font-medium inline-flex items-center justify-center transition-all duration-300">
-                            <i class="fas fa-play-circle mr-2"></i>
-                            Watch Demo
+                        
+                        <a href="#how-it-works" class="group inline-flex items-center justify-center px-8 py-4 glass text-white hover:bg-white/20 rounded-2xl text-base font-bold transition-all duration-300 transform hover:scale-105 border-2 border-white/30">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors duration-300">
+                                    <i class="fas fa-play text-lg"></i>
+                                </div>
+                                <span>Watch Demo</span>
+                            </div>
                         </a>
                     </div>
+                    
+                    <!-- Enhanced Stats -->
+                    <div class="grid grid-cols-3 gap-8 pt-12 animate-slide-up" style="animation-delay: 0.3s;">
+                        <div class="text-center lg:text-left group">
+                            <div class="text-4xl md:text-5xl font-black text-white mb-2 group-hover:scale-110 transition-transform duration-300">50+</div>
+                            <div class="text-white/90 text-sm font-medium">Organizations</div>
+                        </div>
+                        <div class="text-center lg:text-left group">
+                            <div class="text-4xl md:text-5xl font-black text-white mb-2 group-hover:scale-110 transition-transform duration-300">1000+</div>
+                            <div class="text-white/90 text-sm font-medium">Active Students</div>
+                        </div>
+                        <div class="text-center lg:text-left group">
+                            <div class="text-4xl md:text-5xl font-black text-white mb-2 group-hover:scale-110 transition-transform duration-300">500+</div>
+                            <div class="text-white/90 text-sm font-medium">Events Hosted</div>
+                        </div>
+                    </div>
+
+                    <!-- Trust badges -->
+                    <div class="flex flex-wrap gap-4 justify-center lg:justify-start items-center pt-8 animate-fade-in" style="animation-delay: 0.4s;">
+                        <div class="flex items-center gap-2 px-4 py-2 glass rounded-lg border border-white/20">
+                            <i class="fas fa-star text-yellow-400"></i>
+                            <span class="text-sm font-semibold">4.9/5 Rating</span>
+                        </div>
+                        <div class="flex items-center gap-2 px-4 py-2 glass rounded-lg border border-white/20">
+                            <i class="fas fa-shield-check text-blue-400"></i>
+                            <span class="text-sm font-semibold">Secure & Private</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="relative">
-                    <div class="relative bg-white/5 backdrop-blur-sm rounded-2xl p-4 shadow-2xl border border-white/10 transform transition-all duration-500 hover:scale-[1.02]">
-                        <img src="{% static 'images/SoarMascot.png' %}" alt="SOAR Mascot" class="rounded-xl shadow-lg w-full max-w-md mx-auto">
+                
+                <!-- Right Content - Hero Image -->
+                <div class="relative animate-scale-in" style="animation-delay: 0.2s;">
+                    <div class="relative">
+                        <!-- Enhanced decorative elements -->
+                        <div class="absolute -top-8 -right-8 w-96 h-96 bg-gradient-to-br from-blue-500/40 to-blue-600/40 rounded-full filter blur-3xl animate-pulse-slow"></div>
+                        <div class="absolute -bottom-8 -left-8 w-96 h-96 bg-gradient-to-br from-blue-600/40 to-blue-700/40 rounded-full filter blur-3xl animate-pulse-slow" style="animation-delay: 1.5s;"></div>
+                        
+                        <!-- Main image container with enhanced glass effect -->
+                        <div class="relative glass rounded-3xl p-6 shadow-2xl transform hover:scale-[1.02] transition-all duration-700 border-2 border-white/30">
+                            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/10 to-white/5 p-4">
+                                <img src="../static/images/SoarMascot.png" alt="SOAR Mascot" class="w-full h-auto animate-float drop-shadow-2xl">
+                                
+                                <!-- Enhanced floating badges -->
+                                <div class="absolute top-6 right-6 glass rounded-2xl px-5 py-3 shadow-2xl animate-float-delayed border border-white/30" style="animation-delay: 0.5s;">
+                                    <div class="flex items-center gap-3">
+                                        <div class="relative flex h-3 w-3">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-400"></span>
+                                        </div>
+                                        <span class="text-sm font-bold text-white">Live Now</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="absolute bottom-6 left-6 glass rounded-2xl px-5 py-4 shadow-2xl animate-float-delayed border border-white/30" style="animation-delay: 1s;">
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex -space-x-3">
+                                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-3 border-white shadow-lg ring-2 ring-white/50"></div>
+                                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 border-3 border-white shadow-lg ring-2 ring-white/50"></div>
+                                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 border-3 border-white shadow-lg ring-2 ring-white/50"></div>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-bold text-white">+1K Members</div>
+                                            <div class="text-xs text-white/80">Join the community</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional floating element -->
+                                <div class="absolute top-1/2 -left-4 glass rounded-xl px-4 py-3 shadow-xl animate-float border border-white/30" style="animation-delay: 2s;">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas fa-fire text-blue-400 text-lg"></i>
+                                        <span class="text-sm font-bold text-white">Trending</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Orbiting elements -->
+                        <div class="absolute top-1/4 -right-8 w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl shadow-xl animate-float opacity-80 flex items-center justify-center" style="animation-delay: 2s;">
+                            <i class="fas fa-trophy text-white text-2xl"></i>
+                        </div>
+                        <div class="absolute bottom-1/4 -left-8 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl shadow-xl animate-float opacity-80 flex items-center justify-center" style="animation-delay: 3s;">
+                            <i class="fas fa-rocket text-white text-2xl"></i>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <a href="#features" class="flex flex-col items-center gap-2 text-white/60 hover:text-white transition-colors duration-300">
+                <span class="text-xs font-medium uppercase tracking-wider">Scroll Down</span>
+                <i class="fas fa-chevron-down text-xl"></i>
+            </a>
         </div>
     </div>
 
     <!-- Features Section -->
-    <div id="features" class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Everything You Need to Succeed</h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">SOAR provides all the tools you need to manage and grow your student organization</p>
+    <div id="features" class="py-32 bg-gradient-to-b from-white via-blue-50/30 to-white relative overflow-hidden">
+        <!-- Background decoration -->
+        <div class="absolute inset-0 opacity-40">
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-200 rounded-full filter blur-3xl"></div>
+            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-300 rounded-full filter blur-3xl"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-20 space-y-6">
+                <div class="inline-block">
+                    <span class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 rounded-full text-sm font-bold tracking-wide uppercase shadow-lg">
+                        <i class="fas fa-sparkles"></i>
+                        Features
+                    </span>
+                </div>
+                <h2 class="text-5xl md:text-6xl font-black text-gray-900 leading-tight">
+                    Everything You Need to <span class="text-gradient">Succeed</span>
+                </h2>
+                <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
+                    SOAR provides all the tools you need to manage and grow your student organization with ease
+                </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Feature 1 -->
-                <div class="feature-card text-center px-6 py-8 rounded-xl hover:shadow-lg transition-all duration-300">
-                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-users text-3xl text-blue-600"></i>
+                <div class="feature-card group p-8 cursor-pointer">
+                    <div class="feature-card-content space-y-6">
+                        <div class="icon-wrapper inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-3xl shadow-xl">
+                            <i class="fas fa-users text-3xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-black text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                                Organization Management
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed text-base">
+                                Streamline your organization's operations with our comprehensive management tools. Handle members, events, and communications effortlessly.
+                            </p>
+                        </div>
+                        <div class="flex items-center text-blue-600 font-bold group-hover:gap-3 gap-2 transition-all duration-300">
+                            <span>Learn more</span>
+                            <i class="fas fa-arrow-right text-sm transform group-hover:translate-x-2 transition-transform duration-300"></i>
+                        </div>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Organization Management</h3>
-                    <p class="text-gray-600">Easily manage your organization's members, events, and communications all in one place.</p>
                 </div>
 
                 <!-- Feature 2 -->
-                <div class="feature-card text-center px-6 py-8 rounded-xl hover:shadow-lg transition-all duration-300">
-                    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-calendar-alt text-3xl text-purple-600"></i>
+                <div class="feature-card group p-8 cursor-pointer">
+                    <div class="feature-card-content space-y-6">
+                        <div class="icon-wrapper inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl shadow-xl">
+                            <i class="fas fa-calendar-alt text-3xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-black text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                                Event Planning
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed text-base">
+                                Create unforgettable experiences with our powerful event management system. From planning to execution, we've got you covered.
+                            </p>
+                        </div>
+                        <div class="flex items-center text-blue-600 font-bold group-hover:gap-3 gap-2 transition-all duration-300">
+                            <span>Learn more</span>
+                            <i class="fas fa-arrow-right text-sm transform group-hover:translate-x-2 transition-transform duration-300"></i>
+                        </div>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Event Planning</h3>
-                    <p class="text-gray-600">Create, promote, and manage events with our intuitive event management tools.</p>
                 </div>
 
                 <!-- Feature 3 -->
-                <div class="feature-card text-center px-6 py-8 rounded-xl hover:shadow-lg transition-all duration-300">
-                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-comments text-3xl text-green-600"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Team Collaboration</h3>
-                    <p class="text-gray-600">Keep your team connected with built-in messaging and collaboration features.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- How It Works Section -->
-    <div id="how-it-works" class="py-16 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Get started with SOAR in just a few simple steps</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Step 1 -->
-                <div class="text-center px-6 transform transition-all duration-300 hover:scale-105">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-2xl font-bold text-blue-600">1</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Create an Account</h3>
-                    <p class="text-gray-600">Sign up with your school email and complete your profile to get started.</p>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="text-center px-6 transform transition-all duration-300 hover:scale-105">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-2xl font-bold text-blue-600">2</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Join or Create</h3>
-                    <p class="text-gray-600">Browse existing organizations or create your own in just a few clicks.</p>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="text-center px-6 transform transition-all duration-300 hover:scale-105">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-2xl font-bold text-blue-600">3</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Start Engaging</h3>
-                    <p class="text-gray-600">Connect with members, join events, and grow your network.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Testimonials Section -->
-    <div id="testimonials" class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What Our Users Say</h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Join thousands of students and organizations already using SOAR</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Testimonial 1 -->
-                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow duration-300">
-                    <div class="flex items-center mb-4">
-                        <div class="text-yellow-400">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                <div class="feature-card group p-8 cursor-pointer">
+                    <div class="feature-card-content space-y-6">
+                        <div class="icon-wrapper inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-3xl shadow-xl">
+                            <i class="fas fa-comments text-3xl text-white"></i>
                         </div>
-                    </div>
-                    <p class="text-gray-700 mb-6">"SOAR has completely transformed how we manage our student organization. Everything is so much more organized now!"</p>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-lg mr-4">JD</div>
                         <div>
-                            <h4 class="font-bold text-gray-900">John Doe</h4>
-                            <p class="text-sm text-gray-500">President, Computer Science Club</p>
+                            <h3 class="text-2xl font-black text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                                Team Collaboration
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed text-base">
+                                Keep your team connected and productive with built-in messaging, file sharing, and real-time collaboration features.
+                            </p>
+                        </div>
+                        <div class="flex items-center text-blue-600 font-bold group-hover:gap-3 gap-2 transition-all duration-300">
+                            <span>Learn more</span>
+                            <i class="fas fa-arrow-right text-sm transform group-hover:translate-x-2 transition-transform duration-300"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- Testimonial 2 -->
-                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow duration-300">
-                    <div class="flex items-center mb-4">
-                        <div class="text-yellow-400">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
+                <!-- Feature 4 -->
+                <div class="feature-card group p-8 cursor-pointer">
+                    <div class="feature-card-content space-y-6">
+                        <div class="icon-wrapper inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl shadow-xl">
+                            <i class="fas fa-chart-line text-3xl text-white"></i>
                         </div>
-                    </div>
-                    <p class="text-gray-700 mb-6">"The event management features are a game-changer. We've doubled our attendance since we started using SOAR!"</p>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-lg mr-4">AS</div>
                         <div>
-                            <h4 class="font-bold text-gray-900">Alex Smith</h4>
-                            <p class="text-sm text-gray-500">Event Coordinator, Debate Team</p>
+                            <h3 class="text-2xl font-black text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                                Analytics & Insights
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed text-base">
+                                Track your organization's growth with detailed analytics. Make data-driven decisions to improve engagement and reach.
+                            </p>
+                        </div>
+                        <div class="flex items-center text-blue-600 font-bold group-hover:gap-3 gap-2 transition-all duration-300">
+                            <span>Learn more</span>
+                            <i class="fas fa-arrow-right text-sm transform group-hover:translate-x-2 transition-transform duration-300"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- Testimonial 3 -->
-                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow duration-300">
-                    <div class="flex items-center mb-4">
-                        <div class="text-yellow-400">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                <!-- Feature 5 -->
+                <div class="feature-card group p-8 cursor-pointer">
+                    <div class="feature-card-content space-y-6">
+                        <div class="icon-wrapper inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-700 rounded-3xl shadow-xl">
+                            <i class="fas fa-bell text-3xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-black text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                                Smart Notifications
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed text-base">
+                                Never miss important updates with intelligent notifications that keep everyone informed and engaged at the right time.
+                            </p>
+                        </div>
+                        <div class="flex items-center text-blue-600 font-bold group-hover:gap-3 gap-2 transition-all duration-300">
+                            <span>Learn more</span>
+                            <i class="fas fa-arrow-right text-sm transform group-hover:translate-x-2 transition-transform duration-300"></i>
                         </div>
                     </div>
-                    <p class="text-gray-700 mb-6">"As a freshman, SOAR helped me find organizations that matched my interests. I've made so many friends!"</p>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold text-lg mr-4">MG</div>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="feature-card group p-8 cursor-pointer">
+                    <div class="feature-card-content space-y-6">
+                        <div class="icon-wrapper inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl shadow-xl">
+                            <i class="fas fa-shield-alt text-3xl text-white"></i>
+                        </div>
                         <div>
-                            <h4 class="font-bold text-gray-900">Maria Garcia</h4>
-                            <p class="text-sm text-gray-500">Student Member</p>
+                            <h3 class="text-2xl font-black text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                                Secure & Private
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed text-base">
+                                Your data is protected with enterprise-grade security. We take privacy seriously and comply with all regulations.
+                            </p>
+                        </div>
+                        <div class="flex items-center text-blue-600 font-bold group-hover:gap-3 gap-2 transition-all duration-300">
+                            <span>Learn more</span>
+                            <i class="fas fa-arrow-right text-sm transform group-hover:translate-x-2 transition-transform duration-300"></i>
                         </div>
                     </div>
                 </div>
@@ -458,230 +689,187 @@
     </div>
 
     <!-- CTA Section -->
-    <div class="bg-blue-600">
-        <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl font-bold text-white mb-4">Ready to transform your student experience?</h2>
-            <p class="text-xl text-blue-100 max-w-2xl mx-auto mb-8">
-                Join thousands of students and organizations already using SOAR to connect, collaborate, and grow.
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="{% url 'register' %}" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-blue-700 bg-white hover:bg-blue-50 hover:shadow-lg transition-all duration-300 md:py-4 md:text-lg md:px-10">
-                    Get Started for Free
-                </a>
-                <a href="#how-it-works" class="inline-flex items-center justify-center px-8 py-3 border-2 border-white text-base font-medium rounded-full text-white hover:bg-blue-700 hover:shadow-lg transition-all duration-300 md:py-4 md:text-lg md:px-10">
-                    Learn More
-                </a>
+    <div class="cta-gradient text-white py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center space-y-8">
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
+                    Ready to Transform Your
+                    <span class="block mt-2">Student Organization?</span>
+                </h2>
+                <p class="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed font-light">
+                    Join thousands of students already using SOAR to build amazing communities
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                    <a href="#register" class="group inline-flex items-center justify-center px-10 py-5 bg-white text-blue-900 rounded-2xl text-lg font-black shadow-2xl hover:shadow-white/30 transition-all duration-300 transform hover:scale-105">
+                        <span class="flex items-center gap-3">
+                            Start Free Trial
+                            <i class="fas fa-arrow-right transition-transform duration-300 group-hover:translate-x-2"></i>
+                        </span>
+                    </a>
+                    <a href="#contact" class="group inline-flex items-center justify-center px-10 py-5 border-3 border-white/30 glass text-white hover:bg-white/20 rounded-2xl text-lg font-black transition-all duration-300 transform hover:scale-105">
+                        Contact Us
+                    </a>
+                </div>
+                <div class="flex flex-wrap items-center justify-center gap-6 pt-8 text-sm">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-check-circle text-blue-300"></i>
+                        <span>No credit card required</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-check-circle text-blue-300"></i>
+                        <span>14-day free trial</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-check-circle text-blue-300"></i>
+                        <span>Cancel anytime</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
+    <footer class="bg-gray-900 text-white py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div class="space-y-4">
+                    <img class="h-12 w-auto" src="../static/images/soar-logo.png" alt="SOAR Logo">
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Empowering student organizations to connect, collaborate, and grow together.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Product</h3>
-                    <ul class="mt-4 space-y-2">
-                        <li><a href="#features" class="text-base text-gray-300 hover:text-white transition-colors">Features</a></li>
-                        <li><a href="#how-it-works" class="text-base text-gray-300 hover:text-white transition-colors">How It Works</a></li>
-                        <li><a href="#testimonials" class="text-base text-gray-300 hover:text-white transition-colors">Testimonials</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">Pricing</a></li>
+                    <h3 class="text-lg font-bold mb-4">Product</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#features" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">Features</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">Security</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">Roadmap</a></li>
                     </ul>
                 </div>
+                
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Company</h3>
-                    <ul class="mt-4 space-y-2">
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">About Us</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">Careers</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">Contact</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">Blog</a></li>
+                    <h3 class="text-lg font-bold mb-4">Company</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#about" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">News</a></li>
                     </ul>
                 </div>
+                
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Resources</h3>
-                    <ul class="mt-4 space-y-2">
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">Help Center</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">Community</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">Tutorials</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">API</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Legal</h3>
-                    <ul class="mt-4 space-y-2">
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">Privacy</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">Terms</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">Cookie Policy</a></li>
-                        <li><a href="#" class="text-base text-gray-300 hover:text-white transition-colors">GDPR</a></li>
+                    <h3 class="text-lg font-bold mb-4">Contact</h3>
+                    <ul class="space-y-3">
+                        <li class="text-gray-400 text-sm">
+                            <div class="flex items-start gap-2">
+                                <i class="fas fa-map-marker-alt text-blue-400 mt-1"></i>
+                                <span>Cebu Institute of Technology<br>N. Bacalso Ave, Cebu City</span>
+                            </div>
+                        </li>
+                        <li class="text-gray-400 text-sm">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-envelope text-blue-400"></i>
+                                <a href="mailto:info@soar.edu.ph" class="hover:text-blue-400 transition-colors duration-300">info@soar.edu.ph</a>
+                            </div>
+                        </li>
+                        <li class="text-gray-400 text-sm">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-phone text-blue-400"></i>
+                                <a href="tel:+63-32-261-7000" class="hover:text-blue-400 transition-colors duration-300">+63 32 261 7000</a>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>
-            <div class="mt-12 border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center">
-                    <img class="h-8 w-auto" src="{% static 'images/soar-logo.png' %}" alt="SOAR">
-                    <span class="ml-2 text-xl font-bold text-white">SOAR</span>
-                </div>
-                <p class="mt-4 text-base text-gray-400 md:mt-0">&copy; 2023 SOAR. All rights reserved.</p>
-                <div class="mt-4 flex space-x-6 md:mt-0">
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <span class="sr-only">Facebook</span>
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <span class="sr-only">Twitter</span>
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <span class="sr-only">Instagram</span>
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        <span class="sr-only">LinkedIn</span>
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-400 text-sm">© 2024 SOAR - Cebu Institute of Technology. All rights reserved.</p>
+                <div class="flex gap-6 text-sm">
+                    <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">Cookie Policy</a>
                 </div>
             </div>
         </div>
     </footer>
 
     <script>
-        // Add floating animation to elements with the 'float' class
-        function addFloatingAnimation() {
-            const floatElements = document.querySelectorAll('.float');
-            floatElements.forEach((el, index) => {
-                el.style.animation = `float ${3 + Math.random() * 2}s ease-in-out ${index * 0.2}s infinite alternate`;
-            });
-        }
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
 
-        // Initialize animations when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            // Add floating animation to elements
-            addFloatingAnimation();
-            
-            // Add hover effect to cards
-            document.querySelectorAll('.feature-card, .testimonial-card').forEach(card => {
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    
-                    card.style.setProperty('--mouse-x', `${x}px`);
-                    card.style.setProperty('--mouse-y', `${y}px`);
-                });
-            });
-
-            // Mobile menu toggle
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const overlay = document.createElement('div');
-            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-40 hidden backdrop-blur-sm';
-            document.body.appendChild(overlay);
-
-            function toggleMobileMenu() {
-                const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true' || false;
-                mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
-                mobileMenu.classList.toggle('hidden');
-                overlay.classList.toggle('hidden');
-                document.body.style.overflow = isExpanded ? 'auto' : 'hidden';
+        // Feature card mouse tracking for spotlight effect
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
                 
-                // Add animation class
-                if (!isExpanded) {
-                    mobileMenu.classList.add('animate-slideInRight');
-                } else {
-                    mobileMenu.classList.remove('animate-slideInRight');
-                }
-            }
-
-            if (mobileMenuButton) {
-                mobileMenuButton.addEventListener('click', toggleMobileMenu);
-            }
-            
-            if (overlay) {
-                overlay.addEventListener('click', toggleMobileMenu);
-            }
-
-            // Close mobile menu when clicking on a link
-            const mobileMenuLinks = document.querySelectorAll('#mobile-menu a');
-            if (mobileMenuLinks.length > 0) {
-                mobileMenuLinks.forEach(link => {
-                    link.addEventListener('click', () => {
-                        if (mobileMenu) mobileMenu.classList.add('hidden');
-                        if (overlay) overlay.classList.add('hidden');
-                        document.body.style.overflow = 'auto';
-                        if (mobileMenuButton) mobileMenuButton.setAttribute('aria-expanded', 'false');
-                    });
-                });
-            }
-
-            // Smooth scrolling for anchor links with offset
-            const anchorLinks = document.querySelectorAll('a[href^="#"]');
-            if (anchorLinks.length > 0) {
-                anchorLinks.forEach(anchor => {
-                    anchor.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        const targetId = this.getAttribute('href');
-                        if (targetId === '#') return;
-                        
-                        const targetElement = document.querySelector(targetId);
-                        if (targetElement) {
-                            window.scrollTo({
-                                top: targetElement.offsetTop - 100, // Adjust for fixed header
-                                behavior: 'smooth'
-                            });
-                        }
-                        
-                        // Close mobile menu after clicking a link on mobile
-                        if (window.innerWidth < 768) {
-                            if (mobileMenu) mobileMenu.classList.add('hidden');
-                            if (overlay) overlay.classList.add('hidden');
-                            document.body.style.overflow = 'auto';
-                            if (mobileMenuButton) mobileMenuButton.setAttribute('aria-expanded', 'false');
-                        }
-                    });
-                });
-            }
-
-            // Add scroll reveal animation
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fadeInUp');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-
-            // Observe all sections and cards
-            document.querySelectorAll('section, .feature-card, .testimonial-card').forEach(el => {
-                observer.observe(el);
-            });
-
-            // Add confetti effect to CTA buttons
-            const ctaButtons = document.querySelectorAll('.cta-button');
-            ctaButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    // Prevent default only if it's a button with href="#"
-                    if (button.getAttribute('href') === '#') {
-                        e.preventDefault();
-                    }
-                    confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 }
-                    });
-                });
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
             });
         });
 
-        // Add confetti library
-        const confettiScript = document.createElement('script');
-        confettiScript.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js';
-        document.head.appendChild(confettiScript);
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    
+                    // Close mobile menu if open
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease-out';
+            observer.observe(card);
+        });
     </script>
 </body>
 </html>

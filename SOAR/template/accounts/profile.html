@@ -5,57 +5,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SOAR - Student Profile</title>
-    <link rel="stylesheet" href="{% static 'css/accounts/organization.css' %}">
-    <link rel="stylesheet" href="{% static 'css/accounts/profile.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/accounts/organization.css' %}">
+    <link rel="stylesheet" href="{% static 'css/accounts/profile.css' %}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar {
+            transition: transform 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 40;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+            }
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+        }
+    </style>
 </head>
-<body class="profile-page">
-    <!-- Overlay for mobile sidebar -->
-    <div class="overlay"></div>
-    
-    <div class="dashboard-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <img src="{% static 'images/soar-logo.png' %}" alt="SOAR Logo" class="logo">
-                <h2></h2>
-                <span class="sidebar-close"><i class="fas fa-times"></i></span>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="{% url 'index' %}" class="nav-item">
-                    <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="{% url 'profile' %}" class="nav-item active">
-                    <i class="fas fa-user"></i>
-                    <span>My Profile</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>My Events</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>Announcements</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
-            </nav>
+<body class="bg-gray-50">
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
 
-            <!-- Logout -->
-            <a href="#" class="nav-item" onclick="document.getElementById('logout-form').submit(); return false;">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </a>
-            <form id="logout-form" method="POST" action="{% url 'logout' %}" style="display: none;">
-                {% csrf_token %}
-            </form>
-        </aside>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar-wrapper">
+            {% include 'base/sidebar_components.html' with sidebar_type='dashboard' %}
+        </div>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="flex-1 flex flex-col overflow-hidden ml-0 md:ml-64">
             <header class="top-bar">
                 <div class="top-bar-left">
                     <button class="menu-toggle" aria-label="Toggle menu">
@@ -145,8 +136,13 @@
                                         {{ form.year_level }}
                                     </div>
                                 </div>
+                                                                </div>
                                 <div class="profile-footer">
                                     <div class="profile-actions-footer">
+                                        <button type="button" class="btn btn-outline" id="cancel-profile-btn">
+                                            <i class="fas fa-times"></i>
+                                            <span>Cancel</span>
+                                        </button>
                                         <button type="submit" class="btn btn-primary" id="save-profile-btn">
                                             <i class="fas fa-save"></i>
                                             <span>Save Changes</span>
@@ -154,25 +150,6 @@
                                     </div>
                                 </div>
                             </form>
-                        </div>
-
-                        <div class="profile-footer">
-                            <div class="profile-actions-footer">
-                                <button type="button" class="btn btn-outline" id="cancel-profile-btn">
-                                    <i class="fas fa-times"></i>
-                                    <span>Cancel</span>
-                                </button>
-                                <button type="submit" class="btn btn-primary" id="save-profile-btn">
-                                    <i class="fas fa-save"></i>
-                                    <span>Save Changes</span>
-                                </button>
-                            </div>
-                            <div class="profile-logout">
-                                <button type="button" class="btn btn-danger" id="logout-btn">
-                                    <i class="fas fa-sign-out-alt"></i>
-                                    <span>Logout</span>
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -186,6 +163,27 @@
         </main>
     </div>
 
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+
+            if (mobileMenuToggle && sidebar && overlay) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('mobile-open');
+                    overlay.classList.toggle('hidden');
+                });
+
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('mobile-open');
+                    overlay.classList.add('hidden');
+                });
+            }
+        });
+    </script>
     <script src="{% static 'js/accounts/profile.js' %}"></script>
 </body>
 </html>
+                             
